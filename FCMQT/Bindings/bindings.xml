@@ -1,0 +1,9 @@
+<Bindings>
+  <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
+    <Category name="Fully Customizable MultiQuests Tracker">
+      <Action name="FCMQT_TOOGLE_HIDDEN">
+        <Down>FCMQT.ToggleHidden()</Down>
+      </Action>
+    </Category>
+  </Layer>
+</Bindings>

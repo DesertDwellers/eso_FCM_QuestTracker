@@ -1,0 +1,40 @@
+﻿## Title: FCM Quest Tracker
+## APIVersion: 100022 100023
+## Author: DesertDwellers
+## Version: 0.95.b14
+## OptionalDependsOn: LibAddonMenu-2.0 LibMediaProvider-1.0
+## SavedVariables: FCMQTSavedVars
+
+Libs/LibStub.lua
+Libs/LibMediaProvider-1.0.lua
+Libs/LibAddonMenu-2.0.lua
+Libs/controls/panel.lua
+Libs/controls/checkbox.lua
+Libs/controls/colorpicker.lua
+Libs/controls/dropdown.lua
+Libs/controls/header.lua
+Libs/controls/slider.lua
+
+
+Bindings/bindings.xml
+Bindings/bindings.lua
+
+Includes/preset.lua
+Includes/functions.lua
+Includes/settings.lua
+
+Langs/us.lua
+Langs/fr.lua
+Langs/de.lua
+
+FCMQT.xml
+FCMQT.lua
+
+; This Add-on is not created by, affiliated with or sponsored by ZeniMax
+; Media Inc. or its affiliates. The Elder Scrolls® and related logos are
+; registered trademarks or trademarks of ZeniMax Media Inc. in the United
+; States and/or other countries. All rights reserved.
+;
+;
+; You can read the full terms at:
+; https://account.elderscrollsonline.com/add-on-terms
