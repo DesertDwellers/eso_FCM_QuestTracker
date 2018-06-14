@@ -10,8 +10,40 @@ FCMQT.language.de = {
 	-- ß = \195\159
 
 	-- Menu
-	-- Version : 0.95.b15
+	-- Version : 1.4.3.23
 		----Need translations
+	["lang_quests_category_view_settings"] = "Settings for Category Zone View",
+	["lang_class_show_zone"] = "Show zone in Class Category Zone View",
+	["lang_class_show_zone_tip"] = "When using Category Zone View show the zone of the Class quests",
+	["lang_craft_show_zone"] = "Show zone in Craft Category Zone View",
+	["lang_craft_show_zone_tip"] = "When using Category Zone View show the zone of the Crafting quests",
+	["lang_Group_show_zone"] = "Show zone in Group Category Zone View",
+	["lang_Group_show_zone_tip"] = "When using Category Zone View show the zone of the Group quests",
+	["lang_Dungeon_show_zone"] = "Show zone in Dungeon Category Zone View",
+	["lang_Dungeon_show_zone_tip"] = "When using Category Zone View show the zone of the Dungeon quests",
+	["lang_Raid_show_zone"] = "Show zone in Raid Category Zone View",
+	["lang_Raid_show_zone_tip"] = "When using Category Zone View show the zone of the Raid quests",
+	["lang_HideOptObjective"] = "Hide Optional Objectives",
+	["lang_HideOptObjective_tip"] = "Hide quests optional objectives",
+	["lang_HideOptionalInfo"] = "Hide Optional Information",
+	["lang_HideOptionalInfo_tip"] = "Hide Quest Optional Information",
+	["lang_HideHintsOption"] = " Hide Quest Hints",
+	["lang_HideHintsOption_tip"] = "Hide hints for the quest",
+	["lang_HideHiddenOptions"] = "Hide Hidden Quest Hints",
+	["lang_HideHiddenOptions_tip"] = "Hide hidden quest hints.",
+	["lang_HintColor"] = "Quest Hint Color",
+	["lang_HintColor_tip"] = "Color for hints for quest",
+	["lang_HintCompleteColor"] = "Quest Hints Completed Color",
+	["lang_HintCompleteColor_tip"] = "Quest hints completed color.",
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	["lang_quests_class"] = "Show Class Quests",
 	["lang_quests_class_tip"] = "Toggle class quests being visible.",
 	["lang_quests_crafting"] = "Show Crafting Quests",
@@ -39,6 +71,16 @@ FCMQT.language.de = {
 	["lang_titles_default"] = "Default Quest Name Color",
 	["lang_no_trans_focused_zone"] = "Focused Quest Zone Not Transparent",
 	["lang_no_trans_focused_zone_tip"] = "No transparancy of quests in the same zone as the Focused Quest.",
+	
+	["lang_timer_title_font"] = "Quest Timer Font",
+	["lang_timer_title_font_tip"] = "Font for Quest Timer displayed on focus quests that have a timer.",
+	["lang_timer_title_style"] = "Quest Timer Font Style",
+	["lang_timer_title_style_tip"] = "Font style used onQuest Timer displayed on focus quests that have a timer.",
+	["lang_timer_title_size"] = "Quest Timer Font Size",
+	["lang_timer_title_size_tip"] = "Font size for Quest Timer displayed on focus quests that have a timer.",
+	["lang_timer_title_color"] = "Queset Timer Font Color",
+	["lang_timer_title_color_tip"] = "Font color for Quest Timer displayed on focus quests that have a ",
+	
 	-- Need Transaltions END
 	["lang_fcmqt_settings"] = "FCMQT Einstellungen",
 	["lang_global_settings"] = "Globale Einstellungen",

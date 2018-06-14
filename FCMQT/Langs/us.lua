@@ -1,7 +1,42 @@
 FCMQT.language = {}
 FCMQT.language.us = {
 	-- Menu
-	-- Version : 0.95.b15
+	-- Version : 1.4.3.23
+	["lang_quests_category_view_settings"] = "Settings for Category Zone View",
+	["lang_class_show_zone"] = "Show zone in Class Category Zone View",
+	["lang_class_show_zone_tip"] = "When using Category Zone View show the zone of the Class quests",
+	["lang_craft_show_zone"] = "Show zone in Craft Category Zone View",
+	["lang_craft_show_zone_tip"] = "When using Category Zone View show the zone of the Crafting quests",
+	["lang_Group_show_zone"] = "Show zone in Group Category Zone View",
+	["lang_Group_show_zone_tip"] = "When using Category Zone View show the zone of the Group quests",
+	["lang_Dungeon_show_zone"] = "Show zone in Dungeon Category Zone View",
+	["lang_Dungeon_show_zone_tip"] = "When using Category Zone View show the zone of the Dungeon quests",
+	["lang_Raid_show_zone"] = "Show zone in Raid Category Zone View",
+	["lang_Raid_show_zone_tip"] = "When using Category Zone View show the zone of the Raid quests",
+	["lang_HideOptObjective"] = "Hide Optional Objectives",
+	["lang_HideOptObjective_tip"] = "Hide quests optional objectives",
+	["lang_HideOptionalInfo"] = "Hide Optional Information",
+	["lang_HideOptionalInfo_tip"] = "Hide Quest Optional Information",
+	["lang_HideHintsOption"] = "Hide Quest Hints",
+	["lang_HideHintsOption_tip"] = "Hide hints for the quest",
+	["lang_HideHiddenOptions"] = "Hide Hidden Quest Hints",
+	["lang_HideHiddenOptions_tip"] = "Hide hidden quest hints.",
+	["lang_HintColor"] = "Quest Hint Color",
+	["lang_HintColor_tip"] = "Color for hints for quest",
+	["lang_HintCompleteColor"] = "Quest Hints Completed Color",
+	["lang_HintCompleteColor_tip"] = "Quest hints completed color.",
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	["lang_quests_timer_settings"] = "Quest Timer Settings",
+	["lang_quests_timer_settings_Tip"] = "Enable/disable Quest Timer and set fonts and colors.",
 	["lang_fcmqt_settings"] = "FCMQT Settings",
 	["lang_global_settings"] = "Global Settings",
 	
@@ -21,19 +56,28 @@ FCMQT.language.us = {
 	["lang_mouse_4"] = "Mouse Button 4",
 	["lang_mouse_5"] = "Mouse Button 5",
 
+	["lang_timer_title_font"] = "Quest Timer Font",
+	["lang_timer_title_font_tip"] = "Font for Quest Timer displayed on focus quests that have a timer.",
+	["lang_timer_title_style"] = "Quest Timer Font Style",
+	["lang_timer_title_style_tip"] = "Font style used onQuest Timer displayed on focus quests that have a timer.",
+	["lang_timer_title_size"] = "Quest Timer Font Size",
+	["lang_timer_title_size_tip"] = "Font size for Quest Timer displayed on focus quests that have a timer.",
+	["lang_timer_title_color"] = "Queset Timer Font Color",
+	["lang_timer_title_color_tip"] = "Font color for Quest Timer displayed on focus quests that have a ",
+	
 	["lang_area_settings"] = "Zones Quests Settings",
-	["lang_area_name"] = "Show Quests Area Name",
-	["lang_area_font"] = "Quests Area Font",
-	["lang_area_style"] = "Quests Area Font Style",
-	["lang_area_size"] = "Quests Area Font Size",
-	["lang_area_padding"] = "Quests Area Padding Size",
-	["lang_area_color"] = "Quests Area Color",
+	["lang_area_name"] = "Show Quests Zone/Category Name",
+	["lang_area_font"] = "Zone/Category Font",
+	["lang_area_style"] = "Zone/Category Font Style",
+	["lang_area_size"] = "Zone/Category Font Size",
+	["lang_area_padding"] = "Zone/Category Padding Size",
+	["lang_area_color"] = "Zone/Category Color",
 	["lang_autohidequestzone_option"] = "Enable Auto Hide Zone",
 	["lang_questzone_option"] = "Show Quests in Current Zone Only",
 	["lang_quests_guild"] = "Show Guilds Quests",
 	["lang_quests_mainstory"] = "Show Main Story Quests",
 	["lang_quests_cyrodiil"] = "Show Cyrodiil Quests",
-	
+
 	["lang_quests_class"] = "Show Class Quests",
 	["lang_quests_class_tip"] = "Toggle class quests being visible.",
 	["lang_quests_crafting"] = "Show Crafting Quests",
@@ -50,34 +94,36 @@ FCMQT.language.us = {
 	["lang_quests_event_tip"] = "Toggle Event/Holiday quests being visible.",
 	["lang_quests_BG"] = "Show Battleground Quests",
 	["lang_quests_BG_tip"] = "Toggle Battleground quests being visible.",
-	["lang_area_hybrid"] = "Show Classic FCMQT Zones (Hybrid)",
-	["lang_area_hybrid_tip"] = "Show zones in the classic FCMQT fashion, example, Guild quests listed in its own zone not the zone they are in.",
+	["lang_area_hybrid"] = "Show Category Zone View",
+	["lang_area_hybrid_tip"] = "Show zones in the classic Catefory view, example, Guild quests listed in its own category not the zone they are in.",
 
-	["lang_no_trans_focused_zone"] = "Focused Quest Zone Not Transparent",
-	["lang_no_trans_focused_zone_tip"] = "No transparancy of quests in the same zone as the Focused Quest.",
+	["lang_no_trans_focused_zone"] = "Focused Quest Zone Transparency",
+	["lang_no_trans_focused_zone_tip"] = "The zone or category the focused quest is in, will not use the Not Focused Transparency",
 	
 	["lang_quests_settings"] = "Quests Settings",
 	["lang_quests_sort"] = "Sort Quests By...",
 	["lang_quests_nb"] = "Displayed Quests",
 	["lang_quests_show_timer"] = "Show Quest Timer",
+	["lang_quests_show_timer_tip"] = "Show Quest Timer for the focused quest when there is a completion timer.  Please note a blank field will appear at the",
+	
 	
 
-	["lang_quests_hide_obj"] = "Hide Objectives/Hints Except on Focused",
-	["lang_quests_hide_obj_tip"] = "Hide the quest objectives and hints from all quests except on the focused quest",
+	["lang_quests_hide_obj"] = "Hide Objectives/Hints Except when Focused",
+	["lang_quests_hide_obj_tip"] = "Hide the quest objectives and hints from all quests except on the focused quest.",
 	
-	["lang_quests_hide_obj_optional"] = "Hide Completed Hidden Hints/Optional Objectives",
-	["lang_quests_hide_obj_optional_tip"] = "Hide the quests optional objectives/hints that have been completed",
+	["lang_quests_hide_obj_optional"] = "Hide Completed Hints and Objectives",
+	["lang_quests_hide_obj_optional_tip"] = "Hide the quests optional objectives/hints that have been completed for all quests.",
 	
 	["lang_quests_level"] = "Show Quests Level",
-	["lang_quests_optinfos"] = "Hide Optional/Hidden Quest Infos/Hints",
+	["lang_quests_optinfos"] = "Hide ALL Hints and Optional Info",
 	["lang_quests_autoshare"] = "Auto Share Quests",
 	["lang_quests_autountrack"] = "Auto Untrack Hidden Quests",
 	["lang_icon_opt"] = "Enable Assisted Quest Icon",
 	["lang_icon_texture"] = "Assisted Quest Icon Texture",
 	["lang_icon_size"] = "Assisted Quest Icon Size",
 	["lang_icon_color"] = "Assisted Quest Icon Color",
-	["lang_quests_transparency_opt"] = "Enable Transparency for No Focused Quests",
-	["lang_quests_transparency"] = "No Focused Quests Transparency",
+	["lang_quests_transparency_opt"] = "Enable Transparency for quests that are not focused.",
+	["lang_quests_transparency"] = "Not Focused Quests Transparency",
 
 	["lang_titles_settings"] = "Quest Name Settings",
 	["lang_titles_font"] = "Quest Name Font",
@@ -92,7 +138,7 @@ FCMQT.language.us = {
 	["lang_titles_hard"] = "Quest Name Color for Hard Quests",
 	["lang_titles_vhard"] = "Quest Name Color for Very Hard Quests",
 
-	["lang_obj_settings"] = "Objectives Settings",
+	["lang_obj_settings"] = "Objectives/Hints Settings",
 	["lang_obj_font"] = "Objectives Font",
 	["lang_obj_style"] = "Objectives Font Style",
 	["lang_obj_size"] = "Objectives Font Size",
@@ -124,14 +170,14 @@ FCMQT.language.us = {
 	["lang_mouse_4_tip"] = "Set an action for the button 4",
 	["lang_mouse_5_tip"] = "Set an action for the button 5",
 	
-	["lang_area_name_tip"] = "Enable the quest zone name",
-	["lang_area_font_tip"] = "Set the font for the quest zone",
-	["lang_area_style_tip"] = "Set the font style the quest zone",
-	["lang_area_size_tip"] = "Change the font size for quest zone",
-	["lang_area_padding_tip"] = "Change the left and right padding size for quest zone",
-	["lang_area_color_tip"] = "Change the color for the quests zone",
-	["lang_autohidequestzone_option_tip"] = "Follow the focused quest and hide others quests zones",
-	["lang_questzone_option_tip"] = "Show quests in the current zone only",
+	["lang_area_name_tip"] = "Enable the quest zone/category name to be displayed.",
+	["lang_area_font_tip"] = "Set the font for the zone/category for the quest.",
+	["lang_area_style_tip"] = "Set the font style for the zone/category for the quest",
+	["lang_area_size_tip"] = "Change the font size for the zone/category for the quest",
+	["lang_area_padding_tip"] = "Change the left and right padding size for the zone/category for the quest",
+	["lang_area_color_tip"] = "Change the color for the zone/category for the quest",
+	["lang_autohidequestzone_option_tip"] = "Follow the focused quest and hide others zone/category for the quest",
+	["lang_questzone_option_tip"] = "Show quests in the current zone/category for the focused quest",
 	["lang_quests_guild_tip"] = "Show guilds quests",
 	["lang_quests_mainstory_tip"] = "Show main story quests",
 	["lang_quests_cyrodiil_tip"] = "Show Cyrodiil quests",
@@ -140,7 +186,7 @@ FCMQT.language.us = {
 	["lang_quests_nb_tip"] = "Change the number of quest displayed",
 	["lang_quests_show_quest_timer_tip"] = "Show timer for timed quests",
 	["lang_quests_level_tip"] = "Show quests level",
-	["lang_quests_optinfos_tip"] = "Hide hidden infos for optional quests",
+	["lang_quests_optinfos_tip"] = "Hide hidden infos/hints for all quests, including focused quest.",
 	["lang_quests_autoshare_tip"] = "Enable the quest auto share when you are in group",
 	["lang_quests_autountrack_tip"] = "Untrack on the compass all hidden quests",
 	["lang_icon_opt_tip"] = "Enable the quest icon",
@@ -148,7 +194,7 @@ FCMQT.language.us = {
 	["lang_icon_size_tip"] = "Change the icon size",
 	["lang_icon_color_tip"] = "Change the color for the quest icon",
 	["lang_quests_transparency_opt_tip"] = "Enable the transparency for other quests than the focused quest",
-	["lang_quests_transparency_tip"] = "Change the transparency of no focused quests",
+	["lang_quests_transparency_tip"] = "Change the transparency of quests that are not focused.",
 
 	["lang_titles_font_tip"] = "Set the font for the quest names",
 	["lang_titles_style_tip"] = "Set the font style the quest names",

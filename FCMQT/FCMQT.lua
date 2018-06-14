@@ -1,6 +1,6 @@
 ﻿-- Name    : Fully Customizable MultiQuests Tracker (FCMQT)
 -- Author  : DesertDwellers Original Coding by Black Storm
--- Version : 0.95.b15
+-- Version : 1.4.3.23
 -- Date    : 2017/09/01
 FCMQT = FCMQT or {}
 
@@ -11,39 +11,46 @@ local WM = WINDOW_MANAGER
 local EM = EVENT_MANAGER
 local QUEST_TIMER_TEXT_COLOR = "#ffaf61"
 local QUEST_TIMER_TEXT = ""
+-- ***********************************************************
+-- Vars
+-- ***********************************************************
+
 
 LMP:Register("font", "ESO Standard Font", "EsoUI/Common/Fonts/univers57.otf")
 LMP:Register("font", "ESO Book Font", "EsoUI/Common/Fonts/ProseAntiquePSMT.otf")
--- LMP:Register("font", "ESO Handwritten Font"] = "EsoUI/Common/Fonts/Handwritten_Bold.otf" -- Too hard to read.
 LMP:Register("font", "ESO Tablet Font", "EsoUI/Common/Fonts/TrajanPro-Regular.otf")
--- LMP:Register("font", "ESO Gamepad Font"] = "EsoUI/Common/Fonts/FuturaStd-Condensed.otf"  -- Too hard to read.
 
 
 ----------------------------------
 --  Save & Load User Variables
 ----------------------------------
 -- Init defaults vars
-FCMQT.DEBUG = 0
-FCMQT.DEBUGUI = 0
-SLASH_COMMANDS["/fcmqt_debug"] = FCMQT.CMD_DEBUG
-SLASH_COMMANDS["/fcmqt_debugui"] = FCMQT.CMD_DEBUGUI
---local fontList = LMP:List('font')
---local langList = {"English", "Français", "Deutsch"}
---local fontStyles = {"normal", "outline", "shadow", "soft-shadow-thick", "soft-shadow-thin", "thick-outline"}
---local iconList = {"Arrow ESO (Default)", "Icon Dragonknight", "Icon Nightblade", "Icon Sorcerer", "Icon Templar"}
---local actionList = {"None", "Change Assisted Quest", "Filter by Current Zone", "Share a Quest", "Show on Map", "Remove a Quest"}
---local sortList = {"Zone+Name"}
---local DirectionList = {"TOP", "BOTTOM"}
---local presetList = {"Custom", "Default", "Preset1"}
-FCMQT.CyrodiilNumZoneIndex = 37
---FCMQT.FocusedZone = nil
+local Step_Type_And = QUEST_STEP_TYPE_AND -- 1
+local Step_Type_End = QUEST_STEP_TYPE_END -- 3
+local Step_Type_OR = QUEST_STEP_TYPE_OR  -- 2
 
--- Build and structure the box
-function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
-	if FCMQT.DEBUG == 1 then d("*** ADD NEW TITLE qzone "..qzone.." qfocusedzoneval  "..qfocusedzoneval) end
-	-- Generate a new box if not exist one
+local Step_Vis_Hidden = QUEST_STEP_VISIBILITY_HIDDEN -- 2
+local Step_Vis_Hint = QUEST_STEP_VISIBILITY_HINT -- 0
+local Step_Vis_Optional = QUEST_STEP_VISIBILITY_OPTIONAL -- 1
+
+FCMQT.CyrodiilNumZoneIndex = 37
+--**REMOVE 1.3**FCMQT.QuestTimer="Quest Time"
+
+
+FCMQT.DEBUG = 0
+SLASH_COMMANDS["/fcmqt_debug1"] = FCMQT.CMD_DEBUG1
+SLASH_COMMANDS["/fcmqt_debug2"] = FCMQT.CMD_DEBUG2
+SLASH_COMMANDS["/fcmqt_debug3"] = FCMQT.CMD_DEBUG3
+SLASH_COMMANDS["/fcmqt_debug4"] = FCMQT.CMD_DEBUG4
+SLASH_COMMANDS["/fcmqt_resetpos"] = FCMQT.CMD_Position
+SLASH_COMMANDS["/fcmqt_lock"] = FCMQT.CMD_ToggleLock
+FCMQT.CyrodiilNumZoneIndex = 37
+FCMQT.QuestTimer="Quest Time"
+
+-- Build and structure the box  ?? Did AddNewUIBox cause the issue with missings steps ??
+
+function FCMQT.AddNewUIBox()
 	if not FCMQT.box[FCMQT.boxmarker] then
-	
 		local dir = FCMQT.SavedVars.DirectionBox
 		local myboxdirection = BOTTOMLEFT
 		if dir == "BOTTOM" then
@@ -55,7 +62,7 @@ function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
 		FCMQT.box[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.bg, CT_LABEL)
 		FCMQT.box[FCMQT.boxmarker]:ClearAnchors()
 		if FCMQT.boxmarker == 1 then
-			FCMQT.box[FCMQT.boxmarker]:SetAnchor(TOPLEFT, FCMQT.bg, TOPLEFT, 0, 0)
+			FCMQT.box[FCMQT.boxmarker]:SetAnchor(TOPLEFT,FCMQT.boxqtimer, myboxdirection, 0, 0)
 		else
 			FCMQT.box[FCMQT.boxmarker]:SetAnchor(TOPLEFT,FCMQT.box[FCMQT.boxmarker-1],myboxdirection,0,0)
 		end
@@ -71,7 +78,14 @@ function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
 		FCMQT.textbox[FCMQT.boxmarker]:SetAnchor(CENTER,FCMQT.box[FCMQT.boxmarker],CENTER,0,0)
 		FCMQT.textbox[FCMQT.boxmarker]:SetDrawLayer(1)
 	end
+end
 
+-- Add New Title
+
+function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
+	if FCMQT.DEBUG == 2 then d("*** ADD NEW TITLE qzone "..qzone.." qfocusedzoneval  "..qfocusedzoneval) end
+	-- Generate a new box if not exist one
+	FCMQT.AddNewUIBox()
 	-- Refresh content
 	if FCMQT.SavedVars.QuestIcon == "Icon Dragonknight" then
 		FCMQT.icon[FCMQT.boxmarker]:SetTexture("esoui/art/contacts/social_classicon_dragonknight.dds")
@@ -115,15 +129,10 @@ function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
 		end
 	else
 		FCMQT.icon[FCMQT.boxmarker]:SetHidden(true)
---b15		if FCMQT.SavedVars.QuestsNoFocusOption == true then
---b15			FCMQT.box[FCMQT.boxmarker]:SetAlpha(FCMQT.SavedVars.QuestsNoFocusTransparency/100)
---b15		else
---b15			FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
---b15		end
-		if FCMQT.SavedVars.QuestsNoFocusOption == false then
+		if FCMQT.QuestsNoFocusOption == false then
 			FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
 		else
-			if FCMQT.SavedVars.FocusedQuestAreaNoTrans == true and qfocusedzoneval == 1 then
+			if FCMQT.FocusedQuestAreaNoTrans == true and qfocusedzoneval == 1 then
 				FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
 			else
 				FCMQT.box[FCMQT.boxmarker]:SetAlpha(FCMQT.SavedVars.QuestsNoFocusTransparency/100)
@@ -132,8 +141,8 @@ function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
 	end
 	-- Set qname to add in quest type if selected
 	-- sub first two lines with saved vars item
-	if FCMQT.SavedVars.QuestsHybridOption == false or FCMQT.SavedVars.QuestsAreaOption == false then
-		if qtype == QUEST_TYPE_AVA or qtype == QUEST_TYPE_AVA_GRAND or qtype == QUEST_TYPE_AVA_GROUP then	
+	if FCMQT.QuestsHybridOption == false or FCMQT.QuestsAreaOption == false then
+		if qtype == QUEST_TYPE_AVA or qtype == QUEST_TYPE_AVA_GRAND or qtype == QUEST_TYPE_AVA_GROUP then
 			qname = qname.." (AvA)"
 		elseif qtype == QUEST_TYPE_GUILD then
 			qname = qname.." ("..FCMQT.mylanguage.lang_tracker_type_guild..")"
@@ -157,51 +166,42 @@ function FCMQT.AddNewTitle(qindex, qlevel, qname, qtype, qzone, qfocusedzoneval)
 			qname = qname.." ("..FCMQT.mylanguage.lang_tracker_type_test..")"
 		end
 	end
-
-
-	if FCMQT.SavedVars.QuestsShowTimerOption == true then
-		-- With QUEST_TIMER
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(qname.."     "..QUEST_TIMER_TEXT.."")
-		--FCMQT.textbox[FCMQT.boxmarker]:SetText("["..qlevel.."] - "..qname)
-	else
-		-- With QUEST_TIMER
-		-- FCMQT.textbox[FCMQT.boxmarker]:SetText(qname.."     ["..QUEST_TIMER_TEXT.."]")
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(qname)
-	end
-
-	if FCMQT.DEBUGUI == 1 then d("Default Title") end
+	FCMQT.textbox[FCMQT.boxmarker]:SetText(qname)
 	FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TitleColor.r, FCMQT.SavedVars.TitleColor.g, FCMQT.SavedVars.TitleColor.b, FCMQT.SavedVars.TitleColor.a)
-	--*ZL*-end`
 	FCMQT.boxmarker = FCMQT.boxmarker + 1
+end
+
+-- Check content is used when new content is being added, only add what is not selected to be hidden.  Called by AddNewContent().
+-- Done seperate to help keep it cleaner as the options grew.
+
+function FCMQT.CheckContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	if qcmytype == 2 and FCMQT.SavedVars.HideCompleteObjHints == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 3 and FCMQT.SavedVars.HideOptionalInfo == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 4 and FCMQT.SavedVars.HideCompleteObjHints == false and FCMQT.SavedVars.HideOptionalInfo == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 5 and FCMQT.SavedVars.HideOptObjective == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 6 and FCMQT.SavedVars.HideCompleteObjHints == false and FCMQT.SavedVars.HideOptObjective == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 7 and FCMQT.SavedVars.HideHintsOption == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 8 and FCMQT.SavedVars.HideCompleteObjHints == false and FCMQT.SavedVars.HideHintsOption == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 9 and FCMQT.SavedVars.HideHiddenOptions == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 10 and FCMQT.SavedVars.HideCompleteObjHints == false and FCMQT.SavedVars.HideHiddenOptions == false and FCMQT.HideInfoHintsOption == false then
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	elseif qcmytype == 1 then 
+		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
+	end
 end
 
 function FCMQT.AddNewContent(qindex, qstep, qtext, mytype, qzone, qfocusedzoneval)
 	local mytype = mytype
 	-- Generate a new box if not exist one
-	if not FCMQT.box[FCMQT.boxmarker] then
-		local dir = FCMQT.SavedVars.DirectionBox
-		local myboxdirection = BOTTOMLEFT
-		if dir == "BOTTOM" then
-			myboxdirection = BOTTOMLEFT
-		elseif dir == "TOP" then
-			myboxdirection = TOPLEFT
-		end
-		-- Create Contener Box
-		FCMQT.box[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.bg, CT_LABEL)
-		FCMQT.box[FCMQT.boxmarker]:ClearAnchors()
-		FCMQT.box[FCMQT.boxmarker]:SetAnchor(TOPLEFT,FCMQT.box[FCMQT.boxmarker-1],myboxdirection,0,0)
-		FCMQT.box[FCMQT.boxmarker]:SetResizeToFitDescendents(true)
-		-- Create Icon
-		FCMQT.icon[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.bg, CT_TEXTURE)
-		FCMQT.icon[FCMQT.boxmarker]:ClearAnchors()
-		FCMQT.icon[FCMQT.boxmarker]:SetAnchor(TOPRIGHT,FCMQT.box[FCMQT.boxmarker],TOPLEFT,0,0)
-		FCMQT.icon[FCMQT.boxmarker]:SetDimensions(22,22)
-		-- Create Text Box
-		FCMQT.textbox[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.box[FCMQT.boxmarker], CT_LABEL)
-		FCMQT.textbox[FCMQT.boxmarker]:ClearAnchors()
-		FCMQT.textbox[FCMQT.boxmarker]:SetAnchor(CENTER,FCMQT.box[FCMQT.boxmarker],CENTER,0,0)
-	end
-	
+	FCMQT.AddNewUIBox()
 	-- Refresh content
 	if FCMQT.SavedVars.QuestIcon == "Icon Dragonknight" then 
 	FCMQT.icon[FCMQT.boxmarker]:SetTexture("esoui/art/contacts/social_classicon_dragonknight.dds")
@@ -233,64 +233,48 @@ function FCMQT.AddNewContent(qindex, qstep, qtext, mytype, qzone, qfocusedzoneva
 		end
 		FCMQT.textbox[FCMQT.boxmarker]:SetHandler()
 	end	
-	
+	local CurrentFocusedQuest = GetTrackedIsAssisted(1,qindex,0)
 	if mytype == 2 then
 		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextCompleteColor.r, FCMQT.SavedVars.TextCompleteColor.g, FCMQT.SavedVars.TextCompleteColor.b,FCMQT.SavedVars.TextCompleteColor.a)
 	elseif mytype == 3 then
-		if FCMQT.SavedVars.QuestsOptionalOption == false then
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_optional.." : "..qtext)
-			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
-		end
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_optional.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 4 then
-		if FCMQT.SavedVars.QuestsOptionalOption == false then
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_optional.." : "..qtext)
-			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalCompleteColor.r, FCMQT.SavedVars.TextOptionalCompleteColor.g, FCMQT.SavedVars.TextOptionalCompleteColor.b, FCMQT.SavedVars.TextOptionalCompleteColor.a)
-		end
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_optional.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalCompleteColor.r, FCMQT.SavedVars.TextOptionalCompleteColor.g, FCMQT.SavedVars.TextOptionalCompleteColor.b, FCMQT.SavedVars.TextOptionalCompleteColor.a)
 	elseif mytype == 5 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText("**"..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 6 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText("**"..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 7 then
-		if FCMQT.SavedVars.QuestsOptionalOption == false then
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
-			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
-		end
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintColor.r, FCMQT.SavedVars.HintColor.g, FCMQT.SavedVars.HintColor.b, FCMQT.SavedVars.HintColor.a)
 	elseif mytype == 8 then
-			--hideopt
-		if FCMQT.SavedVars.QuestsHideObjOptional == false or FCMQT.SavedVars.QuestsOptionalOption == false then
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
-			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalCompleteColor.r, FCMQT.SavedVars.TextOptionalCompleteColor.g, FCMQT.SavedVars.TextOptionalCompleteColor.b, FCMQT.SavedVars.TextOptionalCompleteColor.a)
-		end
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintCompleteColor.r, FCMQT.SavedVars.HintCompleteColor.g, FCMQT.SavedVars.HintCompleteColor.b, FCMQT.SavedVars.HintCompleteColor.a)
 	elseif mytype == 9 then
-		if FCMQT.SavedVars.QuestsOptionalOption == false then
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint.." : "..qtext)
-			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
-		end
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintColor.r, FCMQT.SavedVars.HintColor.g, FCMQT.SavedVars.HintColor.b, FCMQT.SavedVars.HintColor.a)
 	elseif mytype == 10 then
-		--hideopt
-		if FCMQT.SavedVars.QuestsHideObjOptional == False or FCMQT.SavedVars.QuestsOptionalOption == false then
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint.." : "..qtext)
-			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalCompleteColor.r, FCMQT.SavedVars.TextOptionalCompleteColor.g, FCMQT.SavedVars.TextOptionalCompleteColor.b, FCMQT.SavedVars.TextOptionalCompleteColor.a)
-		end
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintCompleteColor.r, FCMQT.SavedVars.HintCompleteColor.g, FCMQT.SavedVars.HintCompleteColor.b, FCMQT.SavedVars.HintCompleteColor.a)
 	else
 		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextColor.r, FCMQT.SavedVars.TextColor.g, FCMQT.SavedVars.TextColor.b, FCMQT.SavedVars.TextColor.a)
 	end
-	
-	local CurrentFocusedQuest = GetTrackedIsAssisted(1,qindex,0)
-	if CurrentFocusedQuest == true then
+	if CurrentFottcusedQuest == true then
 		FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
 	else
-		if FCMQT.SavedVars.QuestsNoFocusOption == false then
+		if FCMQT.QuestsNoFocusOption == false then
 			FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
 		else
 			if CurrentFocusedQuest == true then
 				FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
 			else
-				if FCMQT.SavedVars.FocusedQuestAreaNoTrans == true and qfocusedzoneval == 1 then
+				if FCMQT.FocusedQuestAreaNoTrans == true and qfocusedzoneval == 1 then
 					FCMQT.box[FCMQT.boxmarker]:SetAlpha(1)
 				else
 					FCMQT.box[FCMQT.boxmarker]:SetAlpha(FCMQT.SavedVars.QuestsNoFocusTransparency/100)
@@ -301,63 +285,183 @@ function FCMQT.AddNewContent(qindex, qstep, qtext, mytype, qzone, qfocusedzoneva
 	FCMQT.boxmarker = FCMQT.boxmarker + 1
 end
 
+
+--=======================================
+-- Quest Timer
+--=======================================
+function FCMQT.HideQuestTimer()
+	if FCMQT.DEBUG == 3 then d("HideQuestTimer") end
+
+	FCMQT.boxqtimer:SetHidden(true)
+	EM:UnregisterForUpdate("FCMQT_Update_Timer")
+	FCMQT.isTimedQuest = false
+end
+
+function FCMQT.UpdateQuestTime(_timerEnd)
+	--DebugMessage--
+	--if FCMQT.DEBUG == 3 then d("FCMQT.UpdateQuestTime  idx "..i.." _timerEnd ".._timerEnd) end
+
+	local RemainingTime = _timerEnd - GetFrameTimeSeconds()
+
+	if RemainingTime > 0 then
+		local TimeText, NextUpdate = ZO_FormatTime(RemainingTime, TIME_FORMAT_STYLE_COLONS, TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_DESCENDING)
+		FCMQT.QuestTimer = "Time: "..TimeText
+		FCMQT.isTimedQuest = true
+		-- Should already be done at build of box
+		FCMQT.boxqtimer:SetColor(FCMQT.SavedVars.TimerTitleColor.r, FCMQT.SavedVars.TimerTitleColor.g, FCMQT.SavedVars.TimerTitleColor.b, FCMQT.SavedVars.TimerTitleColor.a)
+		--FCMQT.ClearQTimer(true)
+		FCMQT.boxqtimer:SetColor(FCMQT.SavedVars.TimerTitleColor.r, FCMQT.SavedVars.TimerTitleColor.g, FCMQT.SavedVars.TimerTitleColor.b, FCMQT.SavedVars.TimerTitleColor.a)
+		FCMQT.boxqtimer:SetText(FCMQT.QuestTimer)
+		if FCMQT.DEBUG == 3 then d(FCMQT.QuestTimer) end
+	else
+		FCMQT.HideQuestTimer()
+	end
+end
+
+function FCMQT.ShowQuestTimer(_timerEnd)
+	--DebugMessage--
+	if FCMQT.DEBUG == 3 then d("ShowQuestTimer") end
+	EM:RegisterForUpdate("FCMQT_Update_Timer", 10, function() FCMQT.UpdateQuestTime(_timerEnd) end, 10)
+	FCMQT.isTimedQuest = true
+	FCMQT.boxqtimer:SetHidden(false)
+	FCMQT.UpdateQuestTime(_timerEnd)
+	
+end
+
+
+function FCMQT.GetQuestTimer(i)
+	local TimerStart, _timerEnd, isVisible, isPaused = GetJournalQuestTimerInfo(i) 
+	--DebugMessage QT
+	if FCMQT.DEBUG == 3 then 
+		d("**Timer ** QuestTimer: idx "..i.."Start "..TimerStart.." End ".._timerEnd)
+	end
+	if isVisible then
+		local CurrentFocusedQuest = GetTrackedIsAssisted(1,i,0)
+		if CurrentFocusedQuest then
+			FCMQT.isTimedQuest = true
+			--FCMQT.idxTimedQuest = i
+			FCMQT.ShowQuestTimer(_timerEnd)
+		end
+	else
+		FCMQT.isTimedQuest = false
+	end
+end	
+
 ----------------------------------
 --            Refresh 
 ----------------------------------
 
 function FCMQT.LoadQuestsInfo(i)
+	-- ********************************************************************
+	-- Builds QuestList
+	-- Uses FCMQT.DEBUG == 1 for output
+	-- *********************************************************************
+	
+	-- Grab initial quest information
 	local qname, backgroundText, activeStepText, activeStepType, activeStepTrackerOverrideText, completed, tracked, qlevel, pushed, qtype = GetJournalQuestInfo(i)
-	if (qname ~= nil and #qname > 0) then
-		local qzone, qobjective, qzoneidx, poiIndex = GetJournalQuestLocationInfo(i)
-		--**de1** if FCMQT.DEBUG == 1 then d("|FF000000E########### "..qname) end
-		--**de1** if FCMQT.DEBUG == 1 then d("ZoneIndex : "..qzoneidx.." / Zone : "..qzone) end
-		-- if FCMQT.DEBUG == 1 then 
-			--local currentmapidx = GetCurrentMapZoneIndex()
-			--d("Player IDX Location: "..currentmapidx)
-		--end		
-		--**de1** if FCMQT.DEBUG == 1 and tracked == true then d("Is Tracked : True") end
-		--**de1** if FCMQT.DEBUG == 1 then d("QType : "..qtype) end 
-		
-		
-		--**de1** if FCMQT.DEBUG == 1 then d("backgroundText : "..backgroundText.." / activeStepText : "..activeStepText) end
-		FCMQT.MyPlayerLevel = GetUnitLevel('player')
-		FCMQT.MyPlayerVLevel = GetUnitVeteranRank('player')
-		
-		FCMQT.QuestList[FCMQT.varnumquest] = {}
-
-		-- Collect infos for table sort
-		qzone = #qzone > 0 and zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, qzone) or zo_strformat(SI_QUEST_JOURNAL_GENERAL_CATEGORY)
-		--qzone = #qzone > 0 and zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, qzone)
-		
-		FCMQT.QuestList[FCMQT.varnumquest].index = i
-		FCMQT.QuestList[FCMQT.varnumquest].zoneidx = qzoneidx or "nil"
-		FCMQT.QuestList[FCMQT.varnumquest].zone = qzone
-		FCMQT.QuestList[FCMQT.varnumquest].level = GetJournalQuestLevel(i)local CurrentFocusedQuest = GetTrackedIsAssisted(1,i,0)
-		local qfocusquest = 0
-		if CurrentFocusedQuest then qfocusquest = 1 end
-		
-		--**de1** if FCMQT.DEBUG == 1 then d("Focused Quest : "..qfocusquest) end
-		FCMQT.QuestList[FCMQT.varnumquest].focusquest = qfocusquest
-		FCMQT.QuestList[FCMQT.varnumquest].focusedzone = FCMQT.FocusedZone
-		local qfocusedzoneval = 0
-		if FCMQT.FocusedZone == qzone then qfocusedzoneval = 1 end
-		FCMQT.QuestList[FCMQT.varnumquest].focusedzoneval = qfocusedzoneval
-		if FCMQT.DEBUG == 1 then d("|*load info* found focused zone "..FCMQT.FocusedZone.." zone idx "..FCMQT.FocusedZoneIdx.."  zoneval "..qfocusedzoneval) end
-		FCMQT.QuestList[FCMQT.varnumquest].name = qname
-		FCMQT.QuestList[FCMQT.varnumquest].type = qtype
-		FCMQT.QuestList[FCMQT.varnumquest].tracked = tracked
-		FCMQT.QuestList[FCMQT.varnumquest].step = {}
-		
-		local k = 1
-		local condcheck2 = {}
-		local nbStep = GetJournalQuestNumSteps(i)
-		--**de1** if FCMQT.DEBUG == 1 then d("qtype : "..qtype.." / ActiveStepType : "..activeStepType.. " / nbStep : "..nbStep) end
+		if (qname ~= nil and #qname > 0) then
+		-- If valid quest grab the location information and do debug output if needed
+			local qzone, qobjective, qzoneidx, poiIndex = GetJournalQuestLocationInfo(i)
+			FCMQT.GetQuestTimer(i)
+			if FCMQT.DEBUG == 1 then 
+				d("**QUEST**********************************************************")
+				d("DEBUG "..qname.."  ZoneIndex : "..qzoneidx.." / Zone : "..qzone)
+				local currentmapidx = GetCurrentMapZoneIndex()
+				d("Player IDX Location: "..currentmapidx)
+				if tracked == true then d("Is Tracked : True")
+				else d("Is Tracked : false")
+				end
+				d("QType : "..qtype.."  backgroundText : "..backgroundText.." / activeStepText : "..activeStepText)
+			end
+			-- Collect infos for table sort
+			qzone = #qzone > 0 and zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, qzone) or zo_strformat(SI_QUEST_JOURNAL_GENERAL_CATEGORY)
+			--qzone = #qzone > 0 and zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, qzone)
+			FCMQT.MyPlayerLevel = GetUnitLevel('player')
+			FCMQT.MyPlayerVLevel = GetUnitVeteranRank('player')
+			-- ----------------------------------------------------------
+			-- Start of FCMQT.QuestList Generation
+			-- ----------------------------------------------------------
+			FCMQT.QuestList[FCMQT.varnumquest] = {}
+			FCMQT.QuestList[FCMQT.varnumquest].index = i
+			FCMQT.QuestList[FCMQT.varnumquest].zoneidx = qzoneidx or "nil"
+			FCMQT.QuestList[FCMQT.varnumquest].zone = qzone
+			FCMQT.QuestList[FCMQT.varnumquest].level = GetJournalQuestLevel(i)
+			-- Check to see if the current quest is current focused quest, set QuestList[x].focusquest to 1 if focused quest else zero.
+			local CurrentFocusedQuest = GetTrackedIsAssisted(1,i,0)
+			if CurrentFocusedQuest then 
+				FCMQT.QuestList[FCMQT.varnumquest].focusquest = 1 
+			else 
+				FCMQT.QuestList[FCMQT.varnumquest].focusquest = 0 
+			end
+			FCMQT.QuestList[FCMQT.varnumquest].focusedzone = FCMQT.FocusedZone
+			-- focused zone
+			if FCMQT.FocusedZone == qzone then 
+				FCMQT.QuestList[FCMQT.varnumquest].focusedzoneval = 1
+			else
+				FCMQT.QuestList[FCMQT.varnumquest].focusedzoneval = 0
+			end
+			-- Debug info focused quest and zone
+			if FCMQT.DEBUG == 1 then 
+				d("Found focused zone "..FCMQT.FocusedZone.." zone idx "..FCMQT.FocusedZoneIdx.."  zoneval "..FCMQT.QuestList[FCMQT.varnumquest].focusedzoneval)
+				if FCMQT.QuestList[FCMQT.varnumquest].focusquest == 1 then d("Focused Quest") else d("Not Focused Quest") end
+			end
+			FCMQT.QuestList[FCMQT.varnumquest].name = qname
+			FCMQT.QuestList[FCMQT.varnumquest].type = qtype
+			FCMQT.QuestList[FCMQT.varnumquest].tracked = tracked
+			-- MyZone is to be used for what zone name is actually displayed and for sort.
+			FCMQT.QuestList[FCMQT.varnumquest].myzone = qzone
+			-- MyZone determination - Only if area (zone) option is on, and Hybrid (category view) is on else myzone remains same as qzone or zone
+			if FCMQT.QuestsHybridOption == true and FCMQT.QuestsAreaOption == true then
+				if FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_AVA or FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_AVA_GRAND or FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_AVA_GROUP then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.QuestList[FCMQT.varnumquest].myzone.." (AvA)"
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_GUILD then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_guild
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_MAIN_STORY then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_mainstory
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_CLASS and FCMQT.SavedVars.QuestsCategoryClassOption == true then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_class.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_CLASS and FCMQT.SavedVars.QuestsCategoryClassOption == false then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_class
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_CRAFTING and FCMQT.SavedVars.QuestsCategoryCraftOption == true then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_craft.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_CRAFTING and FCMQT.SavedVars.QuestsCategoryCraftOption == false then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_craft
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_GROUP and FCMQT.SavedVars.QuestsCategoryGroupOption == true then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_group.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_GROUP and FCMQT.SavedVars.QuestsCategoryGroupOption == false then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_group
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_DUNGEON and FCMQT.SavedVars.QuestsCategoryDungeonOption == true then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_dungeon.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_DUNGEON and FCMQT.SavedVars.QuestsCategoryDungeonOption == false then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_dungeon
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_RAID and FCMQT.SavedVars.QuestsCategoryRaidOption == true then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_raid.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_RAID and FCMQT.SavedVars.QuestsCategoryRaidOption == false then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_raid.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_BATTLEGROUND then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_bg.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_HOLIDAY_EVENT then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.mylanguage.lang_tracker_type_holiday_event.." - "..FCMQT.QuestList[FCMQT.varnumquest].myzone
+				elseif FCMQT.QuestList[FCMQT.varnumquest].type == QUEST_TYPE_QA_TEST then
+					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.QuestList[FCMQT.varnumquest].myzone.." (TEST)"
+				end
+			end
+			if FCMQT.DEBUG == 1 then d("Zone Name: "..FCMQT.QuestList[FCMQT.varnumquest].zone.."     MyZone Name: "..FCMQT.QuestList[FCMQT.varnumquest].myzone) end
+			-- Quest Steps
+			FCMQT.QuestList[FCMQT.varnumquest].step = {}
+			local k = 1
+			local condcheck2 = {}
+			local nbStep = GetJournalQuestNumSteps(i)
+			if FCMQT.DEBUG == 1 then 
+				d("qtype : "..qtype.." / ActiveStepType : "..activeStepType.. " / nbStep : "..nbStep)
+				d("--END QUEST INFO---Start Steps Info------------")
+			end
 			for idx=1, nbStep do
+				if FCMQT.DEBUG == 1 then d("***STEP idx "..idx.."***************************************") end
 				if activeStepType == 3 then
 					local goal, dialog, confirmComplete, declineComplete, backgroundText, journalStepText = GetJournalQuestEnding(i)
 					if (goal ~= nil and goal ~= "") then
-						--**de1** if FCMQT.DEBUG == 1 then d("Step"..idx) end
-						--**de1** if FCMQT.DEBUG == 1 then d(" -> Goal : "..goal) end
+						if FCMQT.DEBUG == 1 then d("Step idx "..idx.." -> Goal : "..goal.." Step Type END") end
 						if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
 							FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
 						end
@@ -368,29 +472,40 @@ function FCMQT.LoadQuestsInfo(i)
 				else
 					local qstep, visibility, stepType, trackerOverrideText, numConditions = GetJournalQuestStepInfo(i,idx)
 					if (qstep ~= nil) then
-						--**de1** if FCMQT.DEBUG == 1 then d("Step"..idx.." type : "..stepType) end
-						--**de1** if FCMQT.DEBUG == 1 then d("over : "..trackerOverrideText.." / -> Step : "..qstep) end
+						if FCMQT.DEBUG == 1 then 
+							d("Step"..idx.." type : "..stepType.." 1 AND 2 OR   over : "..trackerOverrideText.." / -> Step : "..qstep)
+						end 
+						if FCMQT.DEBUG == 1 then d("Visibility check and mytype assignments -----------------") end
 						if visibility == nil or visibility == QUEST_STEP_VISIBILITY_HINT or visibility == QUEST_STEP_VISIBILITY_OPTIONAL or visibility == QUEST_STEP_VISIBILITY_HIDDEN then
-							if ((visibility == 0 or visibility == 1 or visibility == 2) and FCMQT.SavedVars.QuestsOptionalOption == false) then
-								if visibility == nil or visibility == 1 then
+							--**REMOVE 1.3**if ((visibility == 0 or visibility == 1 or visibility == 2) and FCMQT.HideInfoHintsOption == false) then
+							if ((visibility == nil or visibility == QUEST_STEP_VISIBILITY_HIDDEN or visibility == QUEST_STEP_VISIBILITY_HINT or visibility == QUEST_STEP_VISIBILITY_OPTIONAL) and FCMQT.SavedVars.HideInfoOptionalObjOption == true) then
+								-- QUEST_STEP_VISIBILITY_OPTIONAL = 1 Optional
+								if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
 									mytype = 3
-								elseif visibility == 2 then
+								-- QUEST_STEP_VISIBILITY_HIDDEN 2
+								elseif visibility == QUEST_STEP_VISIBILITY_HIDDEN then
 									mytype = 9
+								-- QUEST_STEP_VISIBILITY_HINT
 								else
 									mytype = 7
 								end
 								if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
 									FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
 								end
-								--**de1** if FCMQT.DEBUG == 1 then d("Step Added") end
 								FCMQT.QuestList[FCMQT.varnumquest].step[k].text = qstep
 								FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
+								-- DEBUG1 Start
+								if FCMQT.DEBUG == 1 then 
+									d("Step Added "..k.." Visibility: "..visibility.."  mytype "..mytype)
+									d("Step text "..qstep)
+								end
+								-- DEBUG1 End
 								k = k + 1
 							else
 								local checkstep = ""
-								--**de1** if FCMQT.DEBUG == 1 then d("numConditions : "..numConditions) end
+								if FCMQT.DEBUG == 1 then d("Visibiliyt nil   numConditions : "..numConditions) end
 								for m=1, numConditions do
-									----**de1** if FCMQT.DEBUG == 1 then d("Step num : "..k) end
+									if FCMQT.DEBUG == 1 then d("Step num : "..k) end
 									local mytype = 1
 									local conditionText, current, max, isFailCondition, isComplete, isCreditShared = GetJournalQuestConditionInfo(i, idx, m)
 									if conditionText ~= nil and conditionText ~= "" then
@@ -401,20 +516,20 @@ function FCMQT.LoadQuestsInfo(i)
 										end
 										
 										if checkstep ~= qstep then
-											if visibility == 1 then
+											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
 											-- Optional quests infos
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added1 v=1") end
+												if FCMQT.DEBUG == 1 then d("Cond Added1 vis=1 -- Optional ") end
 												if isComplete ~= true then mytype = 3 else mytype = 4 end
 											-- quests hints infos
-											elseif visibility == 0 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added1 v=0") end
+											elseif visibility == QUEST_STEP_VISIBILITY_HINT then
+												if FCMQT.DEBUG == 1 then d("Cond Added1 vis=0 -- Hint ") end
 												if isComplete ~= true then mytype = 7 else mytype = 8 end
 											-- hidden quests hints infos
-											elseif visibility == 2 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added1 v=2") end
+											elseif visibility == QUEST_STEP_VISIBILITY_HIDDEN then
+												if FCMQT.DEBUG == 1 then d("Cond Added1 vis=2 -- Hidden ") end
 												if isComplete ~= true then mytype = 9 else mytype = 10 end
 											end
-											if visibility == 0 or visibility == 1 or visibility == 2 then
+											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL or visibility == QUEST_STEP_VISIBILITY_HINT or visibility == QUEST_STEP_VISIBILITY_HIDDEN then
 												if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
 													FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
 												end
@@ -422,24 +537,30 @@ function FCMQT.LoadQuestsInfo(i)
 												table.insert(condcheck2, qstep)
 												FCMQT.QuestList[FCMQT.varnumquest].step[k].text = qstep
 												FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
+												-- DEBUG1 Start
+												if FCMQT.DEBUG == 1 then 
+													d("Cond/Step Added "..k.." Visibility: "..visibility.."  mytype "..mytype)
+													d("Cond/Step "..qstep)
+												end
+												-- DEBUG1 End
 												k = k + 1
 											end
+											if FCMQT.DEBUG == 1 and visibility == nil then d("Cond/Step Visibility is nil") end
 										end
 										if isComplete ~= true then
-											--**de1** if FCMQT.DEBUG == 1 then d("Cond num : "..k) end
-											--**de1** if FCMQT.DEBUG == 1 then d(" -> Cond : "..conditionText.." / "..current.." / "..max) end
-											if visibility == 1 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added v=1") end
+											if FCMQT.DEBUG == 1 then d("Cond num : "..k.." -> Cond : "..conditionText.." / "..current.." / "..max) end
+											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
 												mytype = 5
-											elseif visibility == 0 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added v=0") end
+												if FCMQT.DEBUG == 1 then d("Cond Added vis=1 -- Optional -- myType = "..mytype) end
+											elseif visibility == QUEST_STEP_VISIBILITY_HINT then
 												mytype = 7
-											elseif visibility == 2 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added v=2") end
+												if FCMQT.DEBUG == 1 then d("Cond Added vis=0 -- Hint -- mytype - "..mytype) end
+											elseif visibility ==QUEST_STEP_VISIBILITY_HIDDEN then
 												mytype = 9
+												if FCMQT.DEBUG == 1 then d("Cond Added vis=2 -- Hidden -- mytype - "..mytype) end
 											else
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Added v=nil") end
 												mytype = 1
+												if FCMQT.DEBUG == 1 then d("Cond Added vis=nil -- Nil -- mytype - "..mytype) end
 											end
 											local conditionTextClean = conditionText:match("TRACKER GOAL TEXT*")
 											local condcheckmulti = true
@@ -458,20 +579,19 @@ function FCMQT.LoadQuestsInfo(i)
 												k = k + 1
 											end
 										else
-											--**de1** if FCMQT.DEBUG == 1 then d("Cond num : "..k) end
-											--**de1** if FCMQT.DEBUG == 1 then d(" -> Cond Complete : "..conditionText) end
-											if visibility == 1 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Complete Added v=1") end
+											if FCMQT.DEBUG == 1 then d("Cond num : "..k.." -> Cond Complete : "..conditionText) end
+											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
 												mytype = 6
-											elseif visibility == 0 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Complete Added v=0") end
+												if FCMQT.DEBUG == 1 then d("Cond Complete Added vis=1 -- Optional -- mytype - "..mytype) end
+											elseif visibility == QUEST_STEP_VISIBILITY_HINT then
 												mytype = 8
-											elseif visibility == 2 then
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Complete Added v=2") end
+												if FCMQT.DEBUG == 1 then d("Cond Complete Added vis=0 -- Hint -- mytype - "..mytype) end
+											elseif visibility == QUEST_STEP_VISIBILITY_HIDDEN then
 												mytype = 10
+												if FCMQT.DEBUG == 1 then d("Cond Complete Added vis=2 -- Hidden -- mytype - "..mytype) end
 											else
-												--**de1** if FCMQT.DEBUG == 1 then d("Cond Complete Added v=nil") end
 												mytype = 2
+												if FCMQT.DEBUG == 1 then d("Cond Complete Added v=nil -- Nil -- mytype - "..mytype) end
 											end
 											local conditionTextClean = conditionText:match("TRACKER GOAL TEXT*")
 											local condcheckmulti = true
@@ -493,16 +613,23 @@ function FCMQT.LoadQuestsInfo(i)
 									end
 								end
 							end
+						else
+							if FCMQT.DEBUG == 1 then
+								d("!!!BAD VIS!!!!!")
+								d("Vis Not Valid Step"..idx.." type : "..stepType.." 1 AND 2 OR   over : "..trackerOverrideText.." / -> Step : "..qstep.."  Vis "..visibility)
+							end
 						end
-						
 					end
 				end
 			end
+		if FCMQT.DEBUG == 1 then d("---STEP END idx ----------------------------------------") end
 		FCMQT.varnumquest = FCMQT.varnumquest + 1
 	end
 end
 
 function FCMQT.QuestsLoop()
+	
+	
 	FCMQT.DisplayedQuests = {}
 	local userCurrentZone = zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, GetUnitZone('player'))
 	local currentMapZoneIdx = GetCurrentMapZoneIndex()
@@ -523,22 +650,19 @@ function FCMQT.QuestsLoop()
 	else
 		FCMQT.boxinfos:SetHidden(true)
 	end
-	
-	--local fzone, fobjective, fzoneidx, fpoiIndex = FCMQT.FindFocusedQuest()
-
-	for i=1,MAX_JOURNAL_QUESTS do
-		if FCMQT.DEBUG == 1 then d("|########### i"..i) end
-		local valQindex = GetTrackedIsAssisted(1,i,0)
-		if valQindex == true then
-			local fzone, fobjective, fzoneidx, fpoiIndex = GetJournalQuestLocationInfo(i)
-			FCMQT.FocusedZone = fzone
-			FCMQT.FocusedZoneIdx = fzoneidx
-			FCMQT.FoocusedZonePoiIndx = fpoiIndex
-			break;
-		end
+	-- Load qtTimerBox
+	--if FCMQT.SavedVars.QuestsShowTimerOption == true then
+	FCMQT.boxqtimer:SetFont(("%s|%s|%s"):format(LMP:Fetch('font', FCMQT.SavedVars.TimerTitleFont), FCMQT.SavedVars.TimerTitleSize, FCMQT.SavedVars.TimerTitleStyle))
+	FCMQT.boxqtimer:SetText("Quest Time")
+	FCMQT.boxqtimer:SetColor(FCMQT.SavedVars.TimerTitleColor.r, FCMQT.SavedVars.TimerTitleColor.g, FCMQT.SavedVars.TimerTitleColor.b, FCMQT.SavedVars.TimerTitleColor.a)
+	if FCMQT.isTimedQuest == true and qindex == FCMQT.FocusedQIndex then
+		FCMQT.boxqtimer:SetAlpha(1)
+	else
+		FCMQT.boxqtimer:SetAlpha(0)
 	end
-	if FCMQT.DEBUG == 1 then d("|########### found focused zone"..FCMQT.FocusedZone.." zone idx "..FCMQT.FocusedZoneIdx) end
-	
+	--end
+	FCMQT.FindFocusedQuest()
+	if FCMQT.DEBUG == 2 then d("**Timer** Find Focused Quest "..FCMQT.FocusedQIndex) end
 	for i=1, MAX_JOURNAL_QUESTS do
 		if IsValidQuestIndex(i) then
 			FCMQT.LoadQuestsInfo(i)
@@ -548,11 +672,11 @@ function FCMQT.QuestsLoop()
 	-- Sort by zone, name & level
 	local order = FCMQT.SavedVars.SortOrder
 	--local order = "Name"
-	if order == "Zone+Name"  and FCMQT.SavedVars.QuestsAreaOption == true then
+	if order == "Zone+Name"  and FCMQT.QuestsAreaOption == true then
 		table.sort(FCMQT.QuestList, function(a,b)
-			if (a.zone < b.zone) then
+			if (a.myzone < b.myzone) then
 				return true
-			elseif (a.zone > b.zone) then
+			elseif (a.myzone > b.myzone) then
 				return false
 			else
 				if (a.name < b.name) then
@@ -564,7 +688,7 @@ function FCMQT.QuestsLoop()
 		end)
 	end
 	--local RecordedFocusedQuest = GetTrackedIsAssisted(1,FCMQT.currenticon,0)
-	if order == "Focused+Zone+Name" and FCMQT.SavedVars.QuestsAreaOption == true then
+	if order == "Focused+Zone+Name" and FCMQT.QuestsAreaOption == true then
 		table.sort(FCMQT.QuestList, function(a,b)
 			if (a.focusquest > b.focusquest) then
 				return true
@@ -576,9 +700,9 @@ function FCMQT.QuestsLoop()
 				elseif (a.focusedzoneval < b.focusedzoneval) then
 					return false
 				else
-					if (a.zone < b.zone) then
+					if (a.myzone < b.myzone) then
 						return true
-					elseif (a.zone > b.zone) then
+					elseif (a.myzone > b.myzone) then
 						return false
 					else
 						if (a.name < b.name) then
@@ -591,7 +715,7 @@ function FCMQT.QuestsLoop()
 			end
 		end)
 	end--
-	if order == "Focused+Zone+Name"  and FCMQT.SavedVars.QuestsAreaOption == false then
+	if order == "Focused+Zone+Name"  and FCMQT.QuestsAreaOption == false then
 		table.sort(FCMQT.QuestList, function(a,b)
 			if (a.focusquest > b.focusquest) then
 				return true
@@ -606,7 +730,7 @@ function FCMQT.QuestsLoop()
 			end
 		end)
 	end
-	if order == "Zone+Name" and FCMQT.SavedVars.QuestsAreaOption == false then
+	if order == "Zone+Name" and FCMQT.QuestsAreaOption == false then
 			table.sort(FCMQT.QuestList, function(a,b)
 			if (a.name < b.name) then
 				return true
@@ -626,36 +750,43 @@ function FCMQT.QuestsLoop()
 			end
 			valcheck = FCMQT.CheckQuestsToHidden(v.index, v.name, v.type, v.zoneidx, valcheck)
 		end
-	elseif FCMQT.SavedVars.QuestsHybridOption == true and FCMQT.SavedVars.QuestsAreaOption == true then	
-			-- Filters
-		local myQuestsTypesList = { QUEST_TYPE_NONE, QUEST_TYPE_CLASS, QUEST_TYPE_CRAFTING, QUEST_TYPE_GUILD, QUEST_TYPE_MAIN_STORY, QUEST_TYPE_GROUP, QUEST_TYPE_DUNGEON, QUEST_TYPE_RAID, QUEST_TYPE_AVA, QUEST_TYPE_QA_TEST, QUEST_TYPE_AVA_GROUP, QUEST_TYPE_AVA_GRAND, QUEST_TYPE_HOLIDAY_EVENT, QUEST_TYPE_BATTLEGROUND }
-		for i, valTypesList in pairs(myQuestsTypesList) do
-			for j,v in pairs(FCMQT.QuestList) do
-				if v.type == valTypesList then
-					if FCMQT.SavedVars.QuestsZoneOption == true then
-						if IsJournalQuestInCurrentMapZone(v.index) or currentMapZoneIdx == v.zoneidx or userCurrentZone == v.zone then
-							if ((FCMQT.SavedVars.QuestsZoneGuildOption == true and v.type == 3) or (FCMQT.SavedVars.QuestsZoneMainOption == true and v.type == 2) or (FCMQT.SavedVars.QuestsZoneCyrodiilOption == true and v.zoneidx == FCMQT.CyrodiilNumZoneIndex)) then
-								table.insert(FCMQT.DisplayedQuests, v)
-							elseif (v.type ~= QUEST_TYPE_MAIN_STORY and v.type ~= QUEST_TYPE_GUILD and v.zoneidx ~= FCMQT.CyrodiilNumZoneIndex) then
-								table.insert(FCMQT.DisplayedQuests, v)
-							end
-						end
-					else
-						if ((FCMQT.SavedVars.QuestsZoneGuildOption == true and v.type == QUEST_TYPE_GUILD) or (FCMQT.SavedVars.QuestsZoneMainOption == true and v.type == QUEST_TYPE_MAIN_STORY) or (FCMQT.SavedVars.QuestsZoneCyrodiilOption == true and v.zoneidx == FCMQT.CyrodiilNumZoneIndex)) then
-							table.insert(FCMQT.DisplayedQuests, v)
-						elseif (v.type ~= QUEST_TYPE_MAIN_STORY and v.type ~= QUEST_TYPE_GUILD and v.zoneidx ~= FCMQT.CyrodiilNumZoneIndex) then
-							table.insert(FCMQT.DisplayedQuests, v)
-						end
-					end
-					valcheck = FCMQT.CheckQuestsToHidden(v.index, v.name, v.type, v.zoneidx, valcheck)
-				end
-			end
-		end
+	--elseif FCMQT.QuestsHybridOption == true and FCMQT.QuestsAreaOption == true then	
+	--		-- Filters
+	--	local myQuestsTypesList = { QUEST_TYPE_NONE, QUEST_TYPE_CLASS, QUEST_TYPE_CRAFTING, QUEST_TYPE_GUILD, QUEST_TYPE_MAIN_STORY, QUEST_TYPE_GROUP, QUEST_TYPE_DUNGEON, QUEST_TYPE_RAID, QUEST_TYPE_AVA, QUEST_TYPE_QA_TEST, QUEST_TYPE_AVA_GROUP, QUEST_TYPE_AVA_GRAND, QUEST_TYPE_HOLIDAY_EVENT, QUEST_TYPE_BATTLEGROUND }
+	--	for i, valTypesList in pairs(myQuestsTypesList) do
+	--		for j,v in pairs(FCMQT.QuestList) do
+	--			if v.type == valTypesList then
+	--				if FCMQT.SavedVars.QuestsZoneOption == true then
+	--					if IsJournalQuestInCurrentMapZone(v.index) or currentMapZoneIdx == v.zoneidx or userCurrentZone == v.zone then
+	--						if ((FCMQT.SavedVars.QuestsZoneGuildOption == true and v.type == 3) or (FCMQT.SavedVars.QuestsZoneMainOption == true and v.type == 2) or (FCMQT.SavedVars.QuestsZoneCyrodiilOption == true and v.zoneidx == FCMQT.CyrodiilNumZoneIndex)) then
+	--							table.insert(FCMQT.DisplayedQuests, v)
+	--						elseif (v.type ~= QUEST_TYPE_MAIN_STORY and v.type ~= QUEST_TYPE_GUILD and v.zoneidx ~= FCMQT.CyrodiilNumZoneIndex) then
+	--							table.insert(FCMQT.DisplayedQuests, v)
+	--						end
+	--					end
+	--				else
+	--					if ((FCMQT.SavedVars.QuestsZoneGuildOption == true and v.type == QUEST_TYPE_GUILD) or (FCMQT.SavedVars.QuestsZoneMainOption == true and v.type == QUEST_TYPE_MAIN_STORY) or (FCMQT.SavedVars.QuestsZoneCyrodiilOption == true and v.zoneidx == FCMQT.CyrodiilNumZoneIndex)) then
+	--						table.insert(FCMQT.DisplayedQuests, v)
+	--					elseif (v.type ~= QUEST_TYPE_MAIN_STORY and v.type ~= QUEST_TYPE_GUILD and v.zoneidx ~= FCMQT.CyrodiilNumZoneIndex) then
+	--						table.insert(FCMQT.DisplayedQuests, v)
+	--					end
+	--				end
+	--				valcheck = FCMQT.CheckQuestsToHidden(v.index, v.name, v.type, v.zoneidx, valcheck)
+	--			end
+	--		end
+	--	end
 	else
 		for j,v in pairs(FCMQT.QuestList) do
 			-- it works just not sure how to use it
 			--if IsJournalQuestInCurrentMapZone(v.index) == true then table.insert(FCMQT.DisplayedQuests, v) end
 			local isOk = true
+			if FCMQT.SavedVars.QuestsZoneOption == true then
+				if IsJournalQuestInCurrentMapZone(v.index) or currentMapZoneIdx == v.zoneidx or userCurrentZone == v.zone then
+					isOk = true
+				else
+					isOk = false
+				end
+			end
 			if FCMQT.SavedVars.QuestsZoneMainOption == false and v.type == QUEST_TYPE_MAIN_STORY then isOk = false end
 			if FCMQT.SavedVars.QuestsZoneGuildOption == false and v.type == QUEST_TYPE_GUILD then isOk = false end
 			if FCMQT.SavedVars.QuestsZoneCyrodiilOption == false and v.zoneidx == FCMQT.CyrodiilNumZoneIndex then isOk = false end
@@ -688,23 +819,33 @@ function FCMQT.QuestsLoop()
 	end	
 	--
 	for x,z in pairs(FCMQT.DisplayedQuests) do
-		local myzone = z.zone
-		if FCMQT.SavedVars.QuestsHybridOption == true and FCMQT.SavedVars.QuestsAreaOption == true then
+		local myzone = z.myzone
+		--[[if FCMQT.QuestsHybridOption == true and FCMQT.QuestsAreaOption == true then
 			if z.type == QUEST_TYPE_AVA or z.type == QUEST_TYPE_AVA_GRAND or z.type == QUEST_TYPE_AVA_GROUP then
 				myzone = myzone.." (AvA)"
 			elseif z.type == QUEST_TYPE_GUILD then
 				myzone = FCMQT.mylanguage.lang_tracker_type_guild
 			elseif z.type == QUEST_TYPE_MAIN_STORY then
 				myzone = FCMQT.mylanguage.lang_tracker_type_mainstory
-			elseif z.type == QUEST_TYPE_CLASS then
+			elseif z.type == QUEST_TYPE_CLASS and FCMQT.SavedVars.QuestsCategoryClassOption == true then
 				myzone = FCMQT.mylanguage.lang_tracker_type_class.." - "..myzone
-			elseif z.type == QUEST_TYPE_CRAFTING then
+			elseif z.type == QUEST_TYPE_CLASS and FCMQT.SavedVars.QuestsCategoryClassOption == false then
+				myzone = FCMQT.mylanguage.lang_tracker_type_class
+			elseif z.type == QUEST_TYPE_CRAFTING and FCMQT.SavedVars.QuestsCategoryCraftOption == true then
 				myzone = FCMQT.mylanguage.lang_tracker_type_craft.." - "..myzone
-			elseif z.type == QUEST_TYPE_GROUP then
+			elseif z.type == QUEST_TYPE_CRAFTING and FCMQT.SavedVars.QuestsCategoryCraftOption == false then
+				myzone = FCMQT.mylanguage.lang_tracker_type_craft
+			elseif z.type == QUEST_TYPE_GROUP and FCMQT.SavedVars.QuestsCategoryGroupOption == true then
 				myzone = FCMQT.mylanguage.lang_tracker_type_group.." - "..myzone
-			elseif z.type == QUEST_TYPE_DUNGEON then
+			elseif z.type == QUEST_TYPE_GROUP and FCMQT.SavedVars.QuestsCategoryGroupOption == false then
+				myzone = FCMQT.mylanguage.lang_tracker_type_group
+			elseif z.type == QUEST_TYPE_DUNGEON and FCMQT.SavedVars.QuestsCategoryDungeonOption == true then
 				myzone = FCMQT.mylanguage.lang_tracker_type_dungeon.." - "..myzone
-			elseif z.type == QUEST_TYPE_RAID then
+			elseif z.type == QUEST_TYPE_DUNGEON and FCMQT.SavedVars.QuestsCategoryDungeonOption == false then
+				myzone = FCMQT.mylanguage.lang_tracker_type_dungeon
+			elseif z.type == QUEST_TYPE_RAID and FCMQT.SavedVars.QuestsCategoryRaidOption == true then
+				myzone = FCMQT.mylanguage.lang_tracker_type_raid.." - "..myzone
+			elseif z.type == QUEST_TYPE_RAID and FCMQT.SavedVars.QuestsCategoryRaidOption == false then
 				myzone = FCMQT.mylanguage.lang_tracker_type_raid.." - "..myzone
 			elseif z.type == QUEST_TYPE_BATTLEGROUND then
 				myzone = FCMQT.mylanguage.lang_tracker_type_bg.." - "..myzone
@@ -713,57 +854,26 @@ function FCMQT.QuestsLoop()
 			elseif z.type == QUEST_TYPE_QA_TEST then
 				myzone = myzone.." (TEST)"
 			end
-		end
-	--
-
-		--if (FCMQT.SavedVars.QuestsAreaOption == true and (FCMQT.zonename ~= myzone or FCMQT.zonetype ~= z.type)) then		
+		end]]
 		
-		if FCMQT.SavedVars.QuestsAreaOption == true and FCMQT.zonename ~= myzone then		
-			if not FCMQT.box[FCMQT.boxmarker] then
-				local dir = FCMQT.SavedVars.DirectionBox
-				local myboxdirection = BOTTOMLEFT
-				if dir == "BOTTOM" then
-					myboxdirection = BOTTOMLEFT
-				elseif dir == "TOP" then
-					myboxdirection = TOPLEFT
-				end
-				-- Create Container box for Title Zone
-				FCMQT.box[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.bg, CT_LABEL)
-				FCMQT.box[FCMQT.boxmarker]:ClearAnchors()
-				if FCMQT.boxmarker == 1 then
-					FCMQT.box[FCMQT.boxmarker]:SetAnchor(TOPLEFT,FCMQT.bg,TOPLEFT,0,0)
-				else
-					FCMQT.box[FCMQT.boxmarker]:SetAnchor(TOPLEFT,FCMQT.box[FCMQT.boxmarker-1],myboxdirection,0,0)
-				end
-				FCMQT.box[FCMQT.boxmarker]:SetResizeToFitDescendents(true)
-				-- Create default Icon Box
-				FCMQT.icon[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.bg, CT_TEXTURE)
-				FCMQT.icon[FCMQT.boxmarker]:ClearAnchors()
-				FCMQT.icon[FCMQT.boxmarker]:SetAnchor(TOPRIGHT,FCMQT.box[FCMQT.boxmarker],TOPLEFT,0,0)
-				FCMQT.icon[FCMQT.boxmarker]:SetTexture( "/esoui/art/compass/quest_icon_assisted.dds" )
-				FCMQT.icon[FCMQT.boxmarker]:SetDimensions(FCMQT.SavedVars.QuestIconSize, FCMQT.SavedVars.QuestIconSize)
-				-- Create Title Box
-				FCMQT.textbox[FCMQT.boxmarker] = WM:CreateControl(nil, FCMQT.box[FCMQT.boxmarker] , CT_LABEL)
-				FCMQT.textbox[FCMQT.boxmarker]:ClearAnchors()
-				FCMQT.textbox[FCMQT.boxmarker]:SetAnchor(CENTER,FCMQT.box[FCMQT.boxmarker],CENTER,0,0)
-				FCMQT.textbox[FCMQT.boxmarker]:SetDrawLayer(1)
-			end
+		--if (FCMQT.QuestsAreaOption == true and (FCMQT.zonename ~= z.myzone or FCMQT.zonetype ~= z.type)) then		
+		--if FCMQT.DEBUG == 2 then d("quest "..z.name.."   myzone "..myzone) end
+		if FCMQT.QuestsAreaOption == true and FCMQT.zonename ~= z.myzone then		
+		--if FCMQT.QuestsAreaOption == true then
+			FCMQT.AddNewUIBox()
 			FCMQT.box[FCMQT.boxmarker]:SetDimensionConstraints(FCMQT.SavedVars.BgWidth,-1,FCMQT.SavedVars.BgWidth,-1)
 			FCMQT.icon[FCMQT.boxmarker]:SetHidden(true)
 			FCMQT.textbox[FCMQT.boxmarker]:SetDimensionConstraints(FCMQT.SavedVars.BgWidth-FCMQT.SavedVars.QuestsAreaPadding,-1,FCMQT.SavedVars.BgWidth-FCMQT.SavedVars.QuestsAreaPadding,-1)
 			FCMQT.textbox[FCMQT.boxmarker]:SetFont(("%s|%s|%s"):format(LMP:Fetch('font', FCMQT.SavedVars.QuestsAreaFont), FCMQT.SavedVars.QuestsAreaSize, FCMQT.SavedVars.QuestsAreaStyle))
-			FCMQT.textbox[FCMQT.boxmarker]:SetText(myzone)
+			--
+			--
+			FCMQT.textbox[FCMQT.boxmarker]:SetText(z.myzone)
 			FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.QuestsAreaColor.r, FCMQT.SavedVars.QuestsAreaColor.g, FCMQT.SavedVars.QuestsAreaColor.b, FCMQT.SavedVars.QuestsAreaColor.a)
 			FCMQT.currentAreaBox = FCMQT.boxmarker
---b15			if FCMQT.SavedVars.QuestsNoFocusOption == true then
---b15				FCMQT.box[FCMQT.currentAreaBox]:SetAlpha(FCMQT.SavedVars.QuestsNoFocusTransparency/100)
---b15			else
---b15				FCMQT.box[FCMQT.currentAreaBox]:SetAlpha(1)
---b15			end
-			if FCMQT.SavedVars.QuestsNoFocusOption == false then
+			if FCMQT.QuestsNoFocusOption == false then
 				FCMQT.box[FCMQT.currentAreaBox]:SetAlpha(1)
 			else
-				if FCMQT.SavedVars.FocusedQuestAreaNoTrans == true and myzone == FCMQT.FocusedZone then
+				if FCMQT.FocusedQuestAreaNoTrans == true and myzone == FCMQT.FocusedZone then
 					FCMQT.box[FCMQT.currentAreaBox]:SetAlpha(1)
 				else
 					FCMQT.box[FCMQT.currentAreaBox]:SetAlpha(FCMQT.SavedVars.QuestsNoFocusTransparency/100)
@@ -783,22 +893,22 @@ function FCMQT.QuestsLoop()
 				FCMQT.textbox[FCMQT.boxmarker]:SetHandler()
 			end
 			FCMQT.boxmarker = FCMQT.boxmarker + 1
-			FCMQT.zonename = myzone
+			FCMQT.zonename = z.myzone
 			--FCMQT.zonetype = z.type
 		end
 		if  FCMQT.limitnumquest <= showquests then
 			local checkfilter = 1
 			
-			if FCMQT.SavedVars.QuestsHideZoneOption == true then
+			if FCMQT.QuestsHideZoneOption == true then
 				if FCMQT.filterzonedyn == z.zone then
 					FCMQT.AddNewTitle(z.index, z.level, z.name, z.type, z.zone, z.focusedzoneval)
 					--- hidobj
 					local FocusedQuest = GetTrackedIsAssisted(1,z.index,0)
-					if FCMQT.SavedVars.QuestHideObjOption == false or FocusedQuest == true then
+					if FCMQT.HideObjHintsNotFocused == false or FocusedQuest == true then
 						local k=1
 						while z.step[k] do
 							if z.step[k].text ~= "" then
-								FCMQT.AddNewContent(z.index, k, z.step[k].text, z.step[k].mytype, z.zone, z.focusedzoneval)
+								FCMQT.CheckContent(z.index, k, z.step[k].text, z.step[k].mytype, z.zone, z.focusedzoneval)
 							end
 							k=k+1
 						end
@@ -817,11 +927,11 @@ function FCMQT.QuestsLoop()
 					FCMQT.AddNewTitle(z.index, z.level, z.name, z.type, z.zone, z.focusedzoneval)
 					-- hidobj
 					local FocusedQuest = GetTrackedIsAssisted(1,z.index,0)
-					if FCMQT.SavedVars.QuestHideObjOption == false or FocusedQuest == true then
+					if FCMQT.HideObjHintsNotFocused == false or FocusedQuest == true then
 						local k=1
 						while z.step[k] do
 							if z.step[k].text ~= "" then
-								FCMQT.AddNewContent(z.index, k, z.step[k].text, z.step[k].mytype, z.zone, z.focusedzoneval)
+								FCMQT.CheckContent(z.index, k, z.step[k].text, z.step[k].mytype, z.zone, z.focusedzoneval)
 							end
 							k=k+1
 						end
@@ -832,11 +942,11 @@ function FCMQT.QuestsLoop()
 				FCMQT.AddNewTitle(z.index, z.level, z.name, z.type, z.zone, z.focusedzoneval)
 				-- hidobj
 				local FocusedQuest = GetTrackedIsAssisted(1,z.index,0)
-				if FCMQT.SavedVars.QuestHideObjOption == false or FocusedQuest == true  then
+				if FCMQT.HideObjHintsNotFocused == false or FocusedQuest == true  then
 					local k=1
 					while z.step[k] do
 						if z.step[k].text ~= "" then
-							FCMQT.AddNewContent(z.index, k, z.step[k].text, z.step[k].mytype, z.zone, z.focusedzoneval)
+							FCMQT.CheckContent(z.index, k, z.step[k].text, z.step[k].mytype, z.zone, z.focusedzoneval)
 						end
 						k=k+1
 					end
@@ -852,35 +962,38 @@ function FCMQT.QuestsLoop()
 	
 	-- Update Journal and tracker
 	if valcheck == 1 then
-		-- Compass Update
-		--QUEST_TRACKER.InitialTrackingUpdate()
-		ZO_QuestTracker["tracker"]:InitialTrackingUpdate()
-		--ZO_QuestTracker:InitialTrackingUpdate()
-		--ZO_Tracker["tracker"]:InitialTrackingUpdate()
-		-- WorldMap / Minimap Update
-		ZO_WorldMap_UpdateMap()
+		-- Compass Update For 10023
+		FOCUSED_QUEST_TRACKER:InitialTrackingUpdate()
+		local noUpdate = false
+		if BUI then noUpdate = true end
+		if noUpdate == false then
+			--WorldMap / Minimap Update)
+			ZO_WorldMap_UpdateMap()
+		end
+
 	end
 end
+
 
 function FCMQT.QuestsListUpdate(eventCode)
 	if (FCMQT.SavedVars and FCMQT.SavedVars.BgOption ~= nil and eventCode ~= nil) then
 		-- TESTS --
-		--**de1** if FCMQT.DEBUG == 1 then
-		--**de1** 	local userCurrentZone = GetUnitZone('player')
-		--**de1** 	local currentMapIdx = GetCurrentMapIndex()
-		--**de1** 	local currentMapZoneIdx = GetCurrentMapZoneIndex()
-		--**de1** 	local qzone, qobjective, qzoneidx, poiIndex = GetJournalQuestLocationInfo(i)
-		--**de1** 	local qsubzoneidx, qsubzonepoi = GetCurrentSubZonePOIIndices()
-		--**de1** 	qsubzoneidx = tostring(qsubzoneidx)
-		--**de1** 	qsubzonepoi = tostring(qsubzonepoi)
-		--**de1** 	currentMapIdx = tostring(currentMapIdx)
-		--**de1** 	currentMapZoneIdx = tostring(currentMapZoneIdx)
-		--**de1** 	d("--MAP INFOS--")
-		--**de1** 	d("userCurrentZone : "..userCurrentZone)
-		--**de1** 	d("currentMapIdx : "..currentMapIdx.." currentMapZoneIdx : "..currentMapZoneIdx)
-		--**de1** 	d("qsubzoneidx : "..qsubzoneidx.." qsubzonepoi : "..qsubzonepoi)
-		--**de1** 	d("-------------")
-		--**de1** end
+		if FCMQT.DEBUG == 1 then
+			local userCurrentZone = GetUnitZone('player')
+			local currentMapIdx = GetCurrentMapIndex()
+			local currentMapZoneIdx = GetCurrentMapZoneIndex()
+			local qzone, qobjective, qzoneidx, poiIndex = GetJournalQuestLocationInfo(i)
+			local qsubzoneidx, qsubzonepoi = GetCurrentSubZonePOIIndices()
+			qsubzoneidx = tostring(qsubzoneidx)
+			qsubzonepoi = tostring(qsubzonepoi)
+			currentMapIdx = tostring(currentMapIdx)
+			currentMapZoneIdx = tostring(currentMapZoneIdx)
+			d("--MAP INFOS--")
+			d("userCurrentZone : "..userCurrentZone)
+			d("currentMapIdx : "..currentMapIdx.." currentMapZoneIdx : "..currentMapZoneIdx)
+			d("qsubzoneidx : "..qsubzoneidx.." qsubzonepoi : "..qsubzonepoi)
+			d("-------------")
+		end
 		--d(eventCode)
 		FCMQT.QuestList = {}
 		FCMQT.currentAreaBox = 0
@@ -900,6 +1013,7 @@ function FCMQT.QuestsListUpdate(eventCode)
 		FCMQT.ClearBoxs(FCMQT.boxmarker)
 	end
 end
+
 
 ----------------------------------
 --          Start & Menu
@@ -956,7 +1070,6 @@ function FCMQT.Init(eventCode, addOnName)
 		FCMQT.bg:SetDrawLayer(1)
 		FCMQT.bg:SetResizeToFitDescendents(true)
 		FCMQT.bg:SetDimensionConstraints(FCMQT.SavedVars.BgWidth,-1,FCMQT.SavedVars.BgWidth,-1)
-		
 		-- Journal Infos
 		FCMQT.boxinfos = WM:CreateControl(nil, FCMQT.bg , CT_LABEL)
 		FCMQT.boxinfos:ClearAnchors()
@@ -970,6 +1083,22 @@ function FCMQT.Init(eventCode, addOnName)
 				FCMQT.SwitchDisplayMode()
 			end
 		end)
+		-- Quest Timer Box
+		FCMQT.boxqtimer = WM:CreateControl(nil, FCMQT.bg , CT_LABEL)
+		FCMQT.boxqtimer:ClearAnchors()
+		FCMQT.boxqtimer:SetAnchor(TOPLEFT,FCMQT.bg,TOPLEFT,0,0)
+		FCMQT.boxqtimer:SetDimensions(100,40)
+		FCMQT.boxqtimer:SetDimensionConstraints(FCMQT.SavedVars.BgWidth,-1,FCMQT.SavedVars.BgWidth,-1)
+		FCMQT.boxqtimer:SetDrawLayer(1)
+		FCMQT.boxqtimer:SetResizeToFitDescendents(true)
+		--FCMQT.boxqtimer:SetMouseEnabled(true)
+		--FCMQT.boxqtimer:SetHandler("OnMouseDown", function(self, button)
+		--	if  button == 1 or button == 2 or button == 3 then
+		--		FCMQT.SwitchDisplayMode()
+		--	end
+		--end)
+
+		
 
 		if FCMQT.SavedVars.BgOption == true then
 			FCMQT.bg:SetColor(FCMQT.SavedVars.BgColor.r,FCMQT.SavedVars.BgColor.g,FCMQT.SavedVars.BgColor.b,FCMQT.SavedVars.BgColor.a)
@@ -991,8 +1120,13 @@ function FCMQT.Init(eventCode, addOnName)
 		--actionList = FCMQT.mylanguage.actionList
 		
 		CreateSettings()
+		if FCMQT.SavedVars.ShowQuestTimer == true then FCMQT.HideQuestTimer() end
+		
 		-- First Init
 		FCMQT.QuestsListUpdate(1)
+		
+		-- Set vars for keybinds
+		FCMQT.LoadKeybindInfo()
 		
 		-- UPDATES with EVENTS				
 		EM:RegisterForEvent("FCMQT", EVENT_PLAYER_ACTIVATED, FCMQT.QuestsListUpdate) --> EC:131072 Update after zoning
@@ -1003,6 +1137,8 @@ function FCMQT.Init(eventCode, addOnName)
 		EM:RegisterForEvent("FCMQT", EVENT_QUEST_ADDED, function(eventCode, qindex, qname, qstep)
 		EM:RegisterForEvent("FCMQT", EVENT_QUEST_TIMER_UPDATED, FCMQT.QuestsListUpdate)
 		EM:RegisterForEvent("FCMQT", EVENT_QUEST_TIMER_PAUSED, FCMQT.QuestsListUpdate)
+		EM:RegisterForEvent("FCMQT", EVENT_QUEST_LIST_UPDATED, FCMQT.QuestsListUpdate)
+		EM:RegisterForEvent("FCMQT", EVENT_QUEST_CONDITION_COUNTER_CHANGED, FCMQT.QuestsListUpdate)
 			-- Auto Share Quests
 			local PlayerIsGrouped = IsUnitGrouped('player')
 			if PlayerIsGrouped and FCMQT.SavedVars.AutoShare == true and qindex ~= nil then
@@ -1046,6 +1182,28 @@ function FCMQT.Init(eventCode, addOnName)
 		--EM:RegisterForEvent("FCMQT", EVENT_QUEST_SHARE_REMOVED, FCMQT.QuestsListUpdate)
 		--EM:RegisterForEvent("FCMQT", EVENT_QUEST_LOG_IS_FULL, FCMQT.QuestsListUpdate)
 		--EM:RegisterForEvent("FCMQT", EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL, FCMQT.QuestsListUpdate)
+		--EM:RegisterForEvent("FCMQT", EVENT_QUEST_CONDITION_COUNTER_CHANGED, FCMQT.QuestsListUpdate)
+		--EVENT_QUEST_ADDED = 131079
+		--EVENT_QUEST_ADVANCED = 131090
+		--EVENT_QUEST_COMPLETE = 131093
+		--EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL = 131094
+		--EVENT_QUEST_COMPLETE_DIALOG = 131089
+		--EVENT_QUEST_CONDITION_COUNTER_CHANGED = 131085
+		--EVENT_QUEST_LIST_UPDATED = 131083
+		--EVENT_QUEST_LOG_IS_FULL = 131084
+		--EVENT_QUEST_OFFERED = 131080
+		--EVENT_QUEST_OPTIONAL_STEP_ADVANCED = 131091
+		--EVENT_QUEST_POSITION_REQUEST_COMPLETE = 131100
+		--EVENT_QUEST_REMOVED = 131092
+		--EVENT_QUEST_SHARED = 131081
+		--EVENT_QUEST_SHARE_REMOVED = 131082
+		--EVENT_QUEST_SHOW_JOURNAL_ENTRY = 131097
+		--EVENT_QUEST_TIMER_PAUSED = 131087
+		--EVENT_QUEST_TIMER_UPDATED = 131088
+		--EVENT_QUEST_TOOL_UPDATED = 131086
+		
+		
+		
 		
 	else
 		return;
@@ -1059,61 +1217,8 @@ EM:RegisterForEvent("FCMQT", EVENT_ADD_ON_LOADED, FCMQT.Init)
 EM:RegisterForUpdate("FCMQT", 25, function()
 	FCMQT.CheckMode()
 	FCMQT.CheckFocusedQuest()
+	--FCMQT.LoadKeybindInfo()
 end)
 
 
---*******************************************************************
---*******************************************************************
---**********************New Code for Timer **************************
---*******************************************************************
---*******************************************************************
-local function HideQuestTimer()
 
-	
-	FCMQT_Questtracker_LabelQuestRemainTime:SetHidden(true)
-	EVENT_MANAGER:UnregisterForUpdate("Questtracker_Update_QuestTimer")
-	isQuestTimeActive = false
-end
-
-local function UpdateQuestTime(_timerEnd)
-
-
-	local remainingTime = _timerEnd - GetFrameTimeSeconds()
-
-	if remainingTime > 0 then
-		local timeText, nextUpdateDelta = ZO_FormatTime(remainingTime, TIME_FORMAT_STYLE_COLONS, TIME_FORMAT_PRECISION_SECONDS, TIME_FORMAT_DIRECTION_DESCENDING)		
-		FCMQT_Questtracker_LabelQuestRemainTime:SetText("time_remaining" .. ":    " .. timeText)
-		isQuestTimeActive = true
-	else
-		HideQuestTimer()
-	end
-end
-
-local function ShowQuestTimer(_timerEnd)
-
-
-	EVENT_MANAGER:RegisterForUpdate("Questtracker_Update_QuestTimer", 10, function() UpdateQuestTime(_timerEnd) end, 10)		
-	FCMQT_Questtracker_LabelTime:SetHidden(true)		
-	FCMQT_Questtracker_LabelQuestRemainTime:SetHidden(false)
-end
-
-function FCMQT.UpdateQuestTimer(_questIndex)
-
-	local timerStart, timerEnd, isVisible, isPaused = GetJournalQuestTimerInfo(_questIndex) 
-	if isVisible then
-		local assisted = GetTrackedIsAssisted(TRACK_TYPE_QUEST, _questIndex)
-		if assisted then
-			ShowQuestTimer(timerEnd)
-		end
-	end
-end
-
-function FCMQT.UpdateTime()
-
-	local timePrecision = TIME_FORMAT_PRECISION_TWENTY_FOUR_HOUR
-	
-	
-	local timeString = FCMQT.GetFormatedTime(timePrecision)
-	
-	FCMQT_Questtracker_LabelTime:SetText(timeString)
-end

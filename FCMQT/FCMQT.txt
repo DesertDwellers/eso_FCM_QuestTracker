@@ -1,13 +1,21 @@
 ﻿## Title: FCM Quest Tracker
-## APIVersion: 100022 100023
+## APIVersion: 100023
 ## Author: DesertDwellers
-## Version: 0.95.b14
+## Version: 1.4.3.23
 ## OptionalDependsOn: LibAddonMenu-2.0 LibMediaProvider-1.0
 ## SavedVariables: FCMQTSavedVars
 
 Libs/LibStub.lua
 Libs/LibMediaProvider-1.0.lua
 Libs/LibAddonMenu-2.0.lua
+Libs/controls/button.lua
+Libs/controls/custom.lua
+Libs/controls/description.lua
+Libs/controls/divider.lua
+Libs/controls/editbox.lua
+Libs/controls/iconpicker.lua
+Libs/controls/submenu.lua
+Libs/controls/texture.lua
 Libs/controls/panel.lua
 Libs/controls/checkbox.lua
 Libs/controls/colorpicker.lua

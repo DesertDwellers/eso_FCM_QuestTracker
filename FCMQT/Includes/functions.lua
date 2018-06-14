@@ -7,7 +7,7 @@
 FCMQT = FCMQT or {}
 
 -- General Buffer made by Wykkyd : http://wiki.esoui.com/Event_%26_Update_Buffering
--- Version : 0.95.b15
+-- Version : 1.4.3.23
 local BufferTable = {}
 local function BufferReached(key, buffer)
 if key == nil then return end
@@ -28,12 +28,23 @@ function FCMQT.CheckMode()
 		local GameMenuIsHidden = ZO_GameMenu_InGame:IsHidden()
 		local DialogueIsHidden = ZO_InteractWindow:IsHidden()
 		local JournalIsHidden = ZO_QuestJournal:IsHidden()
+		--checks for craft store
 		ZO_FocusedQuestTrackerPanel:SetHidden(true)
-		if InteractiveMenuIsHidden == true and GameMenuIsHidden == true and DialogueIsHidden == true then
-			FCMQT.main:SetHidden(false)
-		-- elseif InteractiveMenuIsHidden == false or GameMenuIsHidden == true or DialogueIsHidden == false then
-		elseif InteractiveMenuIsHidden == false or GameMenuIsHidden == false or DialogueIsHidden == false then
+		local CSRune_isHidden = true
+		local CSCook_isHidden = true
+		if CS then
+			--d("CraftStore loaded.")
+			CSRune_isHidden = CraftStoreFixed_Rune:IsHidden()
+			CSCook_isHidden = CraftStoreFixed_Cook:IsHidden()
+		end
+		if CSRune_isHidden == false or CSCook_isHidden == false then
 			FCMQT.main:SetHidden(true)
+		else
+			if InteractiveMenuIsHidden == true and GameMenuIsHidden == true and DialogueIsHidden == true then
+				FCMQT.main:SetHidden(false)
+			elseif InteractiveMenuIsHidden == false or GameMenuIsHidden == false or DialogueIsHidden == false then
+				FCMQT.main:SetHidden(true)
+			end
 		end
 		if JournalIsHidden == false then
 			-- FCMQT.BoxQuestJournal()
@@ -43,6 +54,7 @@ end
 
 function FCMQT.GetPreset()
 	return FCMQT.SavedVars.Preset
+	
 end
 function FCMQT.SetPreset(newPreset)
 	FCMQT.SavedVars.Preset = newPreset
@@ -87,11 +99,11 @@ function FCMQT.SetPreset(newPreset)
 		FCMQT.SavedVars.QuestsAreaSize = FCMQT.PresetDefaults.QuestsAreaSize
 		FCMQT.SavedVars.QuestsAreaColor = FCMQT.PresetDefaults.QuestsAreaColor
 		FCMQT.SavedVars.QuestsShowTimerOption = FCMQT.PresetDefaults.QuestsShowTimerOption
+		FCMQT.SavedVars.QuestsShowTimerOption = FCMQT.PresetDefaults.QuestsShowTimerOption
 		FCMQT.SavedVars.QuestsZoneOption = FCMQT.PresetDefaults.QuestsZoneOption
 		FCMQT.SavedVars.QuestsZoneGuildOption = FCMQT.PresetDefaults.QuestsZoneGuildOption
 		FCMQT.SavedVars.QuestsZoneMainOption = FCMQT.PresetDefaults.QuestsZoneMainOption
 		FCMQT.SavedVars.QuestsZoneCyrodiilOption = FCMQT.PresetDefaults.QuestsZoneCyrodiilOption
-		FCMQT.SavedVars.QuestsOptionalOption = FCMQT.PresetDefaults.QuestsOptionalOption
 		FCMQT.SavedVars.QuestsUntrackHiddenOption = FCMQT.PresetDefaults.QuestsUntrackHiddenOption
 		FCMQT.SavedVars.QuestsNoFocusOption = FCMQT.PresetDefaults.QuestsNoFocusOption
 		FCMQT.SavedVars.QuestsNoFocusTransparency = FCMQT.PresetDefaults.QuestsNoFocusTransparency
@@ -148,7 +160,7 @@ function FCMQT.SetPreset(newPreset)
 		FCMQT.SavedVars.QuestsZoneGuildOption = FCMQT.preset1.QuestsZoneGuildOption
 		FCMQT.SavedVars.QuestsZoneMainOption = FCMQT.preset1.QuestsZoneMainOption
 		FCMQT.SavedVars.QuestsZoneCyrodiilOption = FCMQT.preset1.QuestsZoneCyrodiilOption
-		FCMQT.SavedVars.QuestsOptionalOption = FCMQT.preset1.QuestsOptionalOption
+		FCMQT.SavedVars.HideInfoHintsOption = FCMQT.preset1.HideInfoHintsOption
 		FCMQT.SavedVars.QuestsUntrackHiddenOption = FCMQT.preset1.QuestsUntrackHiddenOption
 		FCMQT.SavedVars.QuestsNoFocusOption = FCMQT.preset1.QuestsNoFocusOption
 		FCMQT.SavedVars.QuestsNoFocusTransparency = FCMQT.preset1.QuestsNoFocusTransparency
@@ -166,18 +178,20 @@ function FCMQT.SetPreset(newPreset)
 	end
 end
 
+
 function FCMQT.FindFocusedQuest()
-	-- Update the focused quest if quest is added or updated
-	local check = 0
+	-- find the current focused quest
 	for i=1,MAX_JOURNAL_QUESTS do
 		local valQindex = GetTrackedIsAssisted(1,i,0)
 		if valQindex == true then
-			check = 1
 			local fzone, fobjective, fzoneidx, fpoiIndex = GetJournalQuestLocationInfo(i)
+			FCMQT.FocusedQIndex = i
+			FCMQT.FocusedZone = fzone
+			FCMQT.FocusedZoneIdx = fzoneidx
+			FCMQT.FoocusedZonePoiIndx = fpoiIndex
 			break;
 		end
 	end
-	return fzone, fobjective, fzoneidx, fpoiIndex
 end
 
 function FCMQT.CheckFocusedQuest()
@@ -207,19 +221,25 @@ function FCMQT.SetFocusedQuest(qindex)
 			if valQindex == true then
 				if i == qindex then
 					check = 1
+				--***100022 REmove for 100023 START
 				else
 					SetTrackedIsAssisted(1,false,i,0)
+				--***100022 REmove for 100023 END
 				end
 				break;
 			end
 		end
 		if check == 0 then
-			SetTrackedIsAssisted(1,true,qindex,0)
+			--***100023 - For 10023 START
+			FOCUSED_QUEST_TRACKER:ForceAssist(qindex)
+			FOCUSED_QUEST_TRACKER:InitialTrackingUpdate()
 			FCMQT.currenticon = qindex
-			QUEST_TRACKER.InitialTrackingUpdate()
-			--ZO_QuestTracker["tracker"]:InitialTrackingUpdate()
-			--ZO_QuestTracker:InitialTrackingUpdate()
-			ZO_WorldMap_UpdateMap()
+			-- Check to see if Bandit UI is loaded, if so skip update.
+			local noUpdate = false
+			if BUI then noUpdate = true end
+			if noUpdate == false then
+				ZO_WorldMap_UpdateMap()
+			end
 		end
 		-- Refresh Quests
 		FCMQT.QuestsListUpdate(1)
@@ -327,30 +347,142 @@ function FCMQT.ClearBoxs(clearid)
 	end
 end
 
+function FCMQT.ClearQTimer(isVisible)
+	FCMQT.boxqtimer:SetText("")
+	FCMQT.boxqtimer:SetHandler("OnMouseDown", nil)
+	FCMQT.boxqtimer:SetMouseEnabled(false)
+	FCMQT.boxqtimer:SetHidden(isVisible)
+end
+
 -- For KeyBinding
 function FCMQT.ToggleHidden()
 	FCMQT.bg:ToggleHidden()
 end
 
+--Key Bindings
+
+--zone/area enabled
+function FCMQT.ToggleZones()
+	if FCMQT.QuestsAreaOption == true then 
+		FCMQT.QuestsAreaOption = false
+	else
+		FCMQT.QuestsAreaOption =  true
+	end
+	FCMQT.QuestsListUpdate(1)
+end
+
+--zone/area hybrid/pure zone
+function FCMQT.ToggleHybrid()
+	if FCMQT.QuestsHybridOption == true then 
+		FCMQT.QuestsHybridOption = false
+	else
+		FCMQT.QuestsHybridOption = true
+	end
+	FCMQT.QuestsListUpdate(1)
+	end
+
+	--enable auto hide zone
+function FCMQT.ToggleAutoHideZones()
+	if FCMQT.QuestsHideZoneOption == true then 
+		FCMQT.QuestsHideZoneOption = false
+	else
+		FCMQT.QuestsHideZoneOption = true
+	end
+	FCMQT.QuestsListUpdate(1)
+end
+
+--Hide Object/Hints EXCEPT when focused
+function FCMQT.ToggleHideObjExceptFocused()
+	if FCMQT.HideObjHintsNotFocused == true then 
+		FCMQT.HideObjHintsNotFocused = false
+	else
+		FCMQT.HideObjHintsNotFocused = true
+	end
+	FCMQT.QuestsListUpdate(1)
+end
+
+	--Enable Transparency for Not Focused Quests
+function FCMQT.ToggleQuestsNoFocusOption()
+	if FCMQT.QuestsNoFocusOption == true then 
+		FCMQT.QuestsNoFocusOption = false
+	else
+		FCMQT.QuestsNoFocusOption = true
+	end
+	FCMQT.QuestsListUpdate(1)
+end
+
+	--Focused Quest Zone Not Transparent
+function FCMQT.ToggleFocusedQuestAreaNoTrans()
+	if FCMQT.FocusedQuestAreaNoTrans == true then 
+		FCMQT.FocusedQuestAreaNoTrans = false
+	else
+		FCMQT.FocusedQuestAreaNoTrans = true
+	end
+	FCMQT.QuestsListUpdate(1)
+end
+
+--Hide Optional/Hidden Quest Info/Hints ALL
+function FCMQT.ToggleHideInfoHintsOption()
+	if FCMQT.HideInfoHintsOption == true then 
+		FCMQT.HideInfoHintsOption = false
+	else
+		FCMQT.HideInfoHintsOption = true
+	end
+	FCMQT.QuestsListUpdate(1)
+end
 -- For console
-function FCMQT.CMD_DEBUG()
-	if FCMQT.DEBUG == 0 then
-		d("FCMQT Debug : On")
+function FCMQT.CMD_DEBUG1()
+	if FCMQT.DEBUG ~= 1 then
+		d("FCMQT Debug1 : On")
 		FCMQT.DEBUG = 1
 	else
 		d("FCMQT Debug : Off")
 		FCMQT.DEBUG = 0
 	end
 end
-
-function FCMQT.CMD_DEBUGUI()
-	if FCMQT.DEBUGUI == 0 then
-		d("FCMQT DebugUI : On")
-		FCMQT.DEBUGUI = 1
+function FCMQT.CMD_DEBUG2()
+	if FCMQT.DEBUG ~= 2 then
+		d("FCMQT Debug2 : On")
+		FCMQT.DEBUG = 2
 	else
-		d("FCMQT DebugUI : Off")
-		FCMQT.DEBUGUI = 0
+		d("FCMQT Debug : Off")
+		FCMQT.DEBUG = 0
 	end
+end
+function FCMQT.CMD_DEBUG3()
+	if FCMQT.DEBUG ~= 3 then
+		d("FCMQT Debug3 : On")
+		FCMQT.DEBUG = 3
+	else
+		d("FCMQT Debug : Off")
+		FCMQT.DEBUG = 0
+	end
+end
+function FCMQT.CMD_DEBUG4()
+	if FCMQT.DEBUG ~= 4 then
+		d("FCMQT Debug4 : On")
+		FCMQT.DEBUG = 4
+	else
+		d("FCMQT Debug : Off")
+		FCMQT.DEBUG = 0
+	end
+end
+
+function FCMQT.CMD_Position()
+	FCMQT.SetPositionLockOption (false)
+	FCMQT.main:ClearAnchors()
+	FCMQT.main:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, 200, 200)
+	d("FCMQT Tracker reset to be visible!  Tracker is unlocked, position and be sure to lock otherwise you will not be able to select quests with mouse!")
+end
+
+function FCMQT.CMD_ToggleLock()
+	if FCMQT.SavedVars.PositionLockOption == true then
+	FCMQT.SetPositionLockOption(false)
+	d("Tracker Position Unlocked")
+else
+	FCMQT.SetPositionLockOption(true)
+	d("Tracker Position Locked")
+end
 end
 
 -- Background
@@ -571,6 +703,8 @@ end
 function FCMQT.GetQuestIconColor()
 	return FCMQT.SavedVars.QuestIconColor.r, FCMQT.SavedVars.QuestIconColor.g, FCMQT.SavedVars.QuestIconColor.b, FCMQT.SavedVars.QuestIconColor.a
 end
+
+
 function FCMQT.SetQuestIconColor(r,g,b,a)
 	FCMQT.SavedVars.QuestIconColor.r = r
 	FCMQT.SavedVars.QuestIconColor.g = g
@@ -580,11 +714,42 @@ function FCMQT.SetQuestIconColor(r,g,b,a)
 	FCMQT.QuestsListUpdate(1)
 end
 
+
+function FCMQT.GetHintColor()
+	return FCMQT.SavedVars.HintColor.r, FCMQT.SavedVars.HintColor.g, FCMQT.SavedVars.HintColor.b, FCMQT.SavedVars.HintColor.a
+end
+
+function FCMQT.SetHintColor(r,g,b,a)
+	FCMQT.SavedVars.HintColor.r = r
+	FCMQT.SavedVars.HintColor.g = g
+	FCMQT.SavedVars.HintColor.b = b
+	FCMQT.SavedVars.HintColor.a = a
+	FCMQT.SavedVars.Preset = "Custom"
+	FCMQT.QuestsListUpdate(1)
+end
+
+function FCMQT.GetHintCompleteColor()
+	return FCMQT.SavedVars.HintCompleteColor.r, FCMQT.SavedVars.HintCompleteColor.g, FCMQT.SavedVars.HintCompleteColor.b, FCMQT.SavedVars.HintCompleteColor.a
+end
+
+function FCMQT.SetHintCompleteColor(r,g,b,a)
+	FCMQT.SavedVars.HintCompleteColor.r = r
+	FCMQT.SavedVars.HintCompleteColor.g = g
+	FCMQT.SavedVars.HintCompleteColor.b = b
+	FCMQT.SavedVars.HintCompleteColor.a = a
+	FCMQT.SavedVars.Preset = "Custom"
+	FCMQT.QuestsListUpdate(1)
+end
+
+--zone/area enabled
 function FCMQT.GetQuestsAreaOption()
 	return FCMQT.SavedVars.QuestsAreaOption
 end
+
+--zone/area enabled
 function FCMQT.SetQuestsAreaOption(newOpt)
 	FCMQT.SavedVars.QuestsAreaOption = newOpt
+	FCMQT.QuestsAreaOption = newOpt
 	FCMQT.SavedVars.QuestsFilter = {}
 	FCMQT.QuestsListUpdate(1)
 end
@@ -600,6 +765,7 @@ end
 function FCMQT.GetQuestsAreaStyle()
 	return FCMQT.SavedVars.QuestsAreaStyle
 end
+
 function FCMQT.SetQuestsAreaStyle(newStyle)
 	FCMQT.SavedVars.QuestsAreaStyle = newStyle
 	FCMQT.QuestsListUpdate(1)
@@ -639,30 +805,120 @@ function FCMQT.SetQuestsShowTimerOption(newOpt)
 	FCMQT.SavedVars.QuestsShowTimerOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
---hideobj
-function FCMQT.GetQuestHideObjOption()
-	return FCMQT.SavedVars.QuestHideObjOption
+
+
+
+
+function FCMQT.GetHideOptObjective()
+	return FCMQT.SavedVars.HideOptObjective
 end
-function FCMQT.SetQuestHideObjOption(newOpt)
-	FCMQT.SavedVars.QuestHideObjOption = newOpt
+
+function FCMQT.SetHideOptObjective(newOpt)
+	FCMQT.SavedVars.HideOptObjective = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+
+
+function FCMQT.GetHideOptionalInfo()
+	return FCMQT.SavedVars.HideOptionalInfo
+end
+
+function FCMQT.SetHideOptionalInfo(newOpt)
+	FCMQT.SavedVars.HideOptionalInfo = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+
+
+function FCMQT.GetHideHintsOption()
+	return FCMQT.SavedVars.HideHintsOption
+end
+
+function FCMQT.SetHideHintsOption(newOpt)
+	FCMQT.SavedVars.HideHintsOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+
+
+function FCMQT.GetHideHiddenOptions()
+	return FCMQT.SavedVars.HideHiddenOptions
+end
+
+function FCMQT.SetHideHiddenOptions(newOpt)
+	FCMQT.SavedVars.HideHiddenOptions = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+function FCMQT.GetQuestsCategoryClassOption()
+	return FCMQT.SavedVars.QuestsCategoryClassOption
+end
+function FCMQT.SetQuestsCategoryClassOption(newOpt)
+	FCMQT.SavedVars.QuestsCategoryClassOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+function FCMQT.GetQuestsCategoryCraftOption()
+	return FCMQT.SavedVars.QuestsCategoryCraftOption
+end
+function FCMQT.SetQuestsCategoryCraftOption (newOpt)
+	FCMQT.SavedVars.QuestsCategoryCraftOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+function FCMQT.GetQuestsCategoryGroupOption()
+	return FCMQT.SavedVars.QuestsCategoryGroupOption
+end
+function FCMQT.SetQuestsCategoryGroupOption(newOpt)
+	FCMQT.SavedVars.QuestsCategoryGroupOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+function FCMQT.GetQuestsCategoryDungeonOption()
+	return FCMQT.SavedVars.QuestsCategoryDungeonOption
+end
+function FCMQT.SetQuestsCategoryDungeonOption(newOpt)
+	FCMQT.SavedVars.QuestsCategoryDungeonOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+function FCMQT.GetQuestsCategoryRaidOption()
+	return FCMQT.SavedVars.QuestsCategoryRaidOption
+end
+function FCMQT.SetQuestsCategoryRaidOption(newOpt)
+	FCMQT.SavedVars.QuestsCategoryRaidOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
+
+
+--Hide Object/Hints EXCEPT when focused
+function FCMQT.GetHideObjHintsNotFocused()
+	return FCMQT.SavedVars.HideObjHintsNotFocused
+end
+
+--Hide Object/Hints EXCEPT when focused
+function FCMQT.SetHideObjHintsNotFocused(newOpt)
+	FCMQT.SavedVars.HideObjHintsNotFocused = newOpt
+	FCMQT.HideObjHintsNotFocused = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
 --hideoptional
-function FCMQT.GetQuestsHideObjOptional()
-	return FCMQT.SavedVars.QuestsHideObjOptional
+function FCMQT.GetHideCompleteObjHints()
+	return FCMQT.SavedVars.HideCompleteObjHints
 end
-function FCMQT.SetQuestsHideObjOptional(newOpt)
-	FCMQT.SavedVars.QuestsHideObjOptional = newOpt
+function FCMQT.SetHideCompleteObjHints(newOpt)
+	FCMQT.SavedVars.HideCompleteObjHints = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
 
-function FCMQT.GetFocusedQuestAreaNoTrans(newOpt)
-	FCMQT.SavedVars.FocusedQuestAreaNoTrans = newOpt
+--Focused Quest Zone Not Transparent
+function FCMQT.GetFocusedQuestAreaNoTrans()
 	FCMQT.QuestsListUpdate(1)
 end
 
+--Focused Quest Zone Not Transparent
 function FCMQT.SetFocusedQuestAreaNoTrans(newOpt)
 	FCMQT.SavedVars.FocusedQuestAreaNoTrans = newOpt
+	FCMQT.FocusedQuestAreaNoTrans = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
 
@@ -674,11 +930,15 @@ function FCMQT.SetQuestsLevelOption(newOpt)
 	FCMQT.QuestsListUpdate(1)
 end
 
+--enable auto hide zone
 function FCMQT.GetQuestsHideZoneOption()
 	return FCMQT.SavedVars.QuestsHideZoneOption
 end
+
+--enable auto hide zone
 function FCMQT.SetQuestsHideZoneOption(newOpt)
 	FCMQT.SavedVars.QuestsHideZoneOption = newOpt
+	FCMQT.QuestsHideZoneOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
 
@@ -697,11 +957,16 @@ function FCMQT.SetQuestsZoneGuildOption(newOpt)
 	FCMQT.SavedVars.QuestsZoneGuildOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
+
+--zone/area hybrid/pure zone
 function FCMQT.GetQuestsHybridOption()
 	return FCMQT.SavedVars.QuestsHybridOption
 end
+
+--zone/area hybrid/pure zone
 function FCMQT.SetQuestsHybridOption(newOpt)
 	FCMQT.SavedVars.QuestsHybridOption = newOpt
+	FCMQT.QuestsHybridOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end	
 
@@ -776,11 +1041,16 @@ function FCMQT.SetQuestsZoneBGOption(newOpt)
 	FCMQT.SavedVars.QuestsZoneBGOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
-function FCMQT.GetQuestsOptionalOption()
-	return FCMQT.SavedVars.QuestsOptionalOption
+
+--Hide Optional/Hidden Quest Info/Hints ALL
+function FCMQT.GetHideInfoHintsOption()
+	return FCMQT.SavedVars.HideInfoHintsOption
 end
-function FCMQT.SetQuestsOptionalOption(newOpt)
-	FCMQT.SavedVars.QuestsOptionalOption = newOpt
+
+--Hide Optional/Hidden Quest Info/Hints ALL
+function FCMQT.SetHideInfoHintsOption(newOpt)
+	FCMQT.SavedVars.HideInfoHintsOption = newOpt
+	FCMQT.HideInfoHintsOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
 
@@ -792,11 +1062,15 @@ function FCMQT.SetQuestsUntrackHiddenOption(newOpt)
 	FCMQT.QuestsListUpdate(1)
 end
 
+--Enable Transparency for Not Focused Quests
 function FCMQT.GetQuestsNoFocusOption()
 	return FCMQT.SavedVars.QuestsNoFocusOption
 end
+
+--Enable Transparency for Not Focused Quests
 function FCMQT.SetQuestsNoFocusOption(newOpt)
 	FCMQT.SavedVars.QuestsNoFocusOption = newOpt
+	FCMQT.QuestsNoFocusOption = newOpt
 	FCMQT.QuestsListUpdate(1)
 end
 
@@ -841,6 +1115,47 @@ function FCMQT.GetTitlePadding()
 end
 function FCMQT.SetTitlePadding(newSize)
 	FCMQT.SavedVars.TitlePadding = newSize
+	FCMQT.SavedVars.Preset = "Custom"
+	FCMQT.QuestsListUpdate(1)
+end
+
+-- TimerTitle Custom
+function FCMQT.GetTimerTitleFont()
+	return FCMQT.SavedVars.TimerTitleFont
+end
+function FCMQT.SetTimerTitleFont(newFont)
+	FCMQT.SavedVars.TimerTitleFont = newFont
+	FCMQT.SavedVars.Preset = "Custom"
+	FCMQT.QuestsListUpdate(1)
+end
+
+function FCMQT.GetTimerTitleStyle()
+	return FCMQT.SavedVars.TimerTitleStyle
+end
+function FCMQT.SetTimerTitleStyle(newStyle)
+	FCMQT.SavedVars.TimerTitleStyle = newStyle
+	FCMQT.SavedVars.Preset = "Custom"
+	FCMQT.QuestsListUpdate(1)
+end
+
+function FCMQT.GetTimerTitleSize()
+	return FCMQT.SavedVars.TimerTitleSize
+end
+function FCMQT.SetTimerTitleSize(newSize)
+	FCMQT.SavedVars.TimerTitleSize = newSize
+	FCMQT.SavedVars.Preset = "Custom"	
+	FCMQT.QuestsListUpdate(1)
+end
+
+-- Default TimerTitle color
+function FCMQT.GetTimerTitleColor()
+	return FCMQT.SavedVars.TimerTitleColor.r, FCMQT.SavedVars.TimerTitleColor.g, FCMQT.SavedVars.TimerTitleColor.b, FCMQT.SavedVars.TimerTitleColor.a
+end
+function FCMQT.SetTimerTitleColor(r,g,b,a)
+	FCMQT.SavedVars.TimerTitleColor.r = r
+	FCMQT.SavedVars.TimerTitleColor.g = g
+	FCMQT.SavedVars.TimerTitleColor.b = b
+	FCMQT.SavedVars.TimerTitleColor.a = a
 	FCMQT.SavedVars.Preset = "Custom"
 	FCMQT.QuestsListUpdate(1)
 end
@@ -1021,6 +1336,14 @@ function FCMQT.MouseTitleController(button, qzone)
 	end
 end
 
+function FCMQT.QuestToChat(i)
+	local qname, backgroundText, activeStepText, activeStepType, activeStepTrackerOverrideText, completed, tracked, qlevel, pushed, qtype = GetJournalQuestInfo(i)
+	
+	d("Selected Quest:  "..qname)
+	d("Background:  "..backgroundText)
+	d("Active Step:  "..activeStepText)
+end
+
 function FCMQT.MouseController(button, qindex, qname)
 	local valaction = "None"
 	if button == 1 then
@@ -1049,10 +1372,50 @@ function FCMQT.MouseController(button, qindex, qname)
 		FCMQT.CheckRemoveQuestBox(qindex, qname)
 	elseif valaction == "Show on Map" then
 		ZO_WorldMap_ShowQuestOnMap(qindex)
+	elseif valaction == "Quest Info to Chat" then
+		FCMQT.QuestToChat(qindex)
 	end	
+end
+
+function FCMQT.LoadKeybindInfo()
+	--zone/area enabled
+	FCMQT.QuestsAreaOption = FCMQT.SavedVars.QuestsAreaOption
+	--if FCMQT.QuestsAreaOption == true then d("Area On") else d("Area Off") end
+	--zone/area hybrid/pure zone
+	FCMQT.QuestsHybridOption = FCMQT.SavedVars.QuestsHybridOption
+	--if FCMQT.QuestsHybridOption == true then d("Category On") else d("Categpry Off") end
+	--enable auto hide zone
+	FCMQT.QuestsHideZoneOption = FCMQT.SavedVars.QuestsHideZoneOption
+	--if FCMQT.QuestsHideZoneOption == true then d("enable auto hide zone On") else d("enable auto hide zone Off") end
+	--Hide Object/Hints EXCEPT when focused
+	FCMQT.HideObjHintsNotFocused = FCMQT.SavedVars.HideObjHintsNotFocused
+	--if FCMQT.HideObjHintsNotFocused == true then d("Obj and Hints hidden except focused On") else d("Obj and Hints hidden except focused Off") end
+	--Enable Transparency for Not Focused Quests
+	FCMQT.QuestsNoFocusOption = FCMQT.SavedVars.QuestsNoFocusOption
+	--if FCMQT.QuestsNoFocusOption == true then d("Transparcncey for not focused On") else d("Transparency for not focused is Off") end
+	--Focused Quest Zone Not Transparent
+	FCMQT.FocusedQuestAreaNoTrans = FCMQT.SavedVars.FocusedQuestAreaNoTrans
+	--if FCMQT.FocusedQuestAreaNoTrans == true then d("Focused Quest Zone Not Transparent On") else d("Focused Quest Zone Not Transparent Off") end
+	--Hide Optional/Hidden Quest Info/Hints ALL
+	FCMQT.HideInfoHintsOption = FCMQT.SavedVars.HideInfoHintsOption
+	--if FCMQT.HideInfoHintsOption == true then d("Hide Optional/Hidden Quest Info/Hints ALL On") else d("Hide Optional/Hidden Quest Info/Hints ALL Off") end
 end
 
 -- Tests Only
 function FCMQT.CheckEvent(eventCode)
 	d(eventCode)
+end
+
+
+function CSTest()
+    if CS then
+        d("CraftStore loaded.")
+		if FCMQT.main:isHidden() then
+			d("Window No Open Open")
+		else
+			d("Window No Open Closed")
+		end
+    else
+        d("CraftStore not loaded.")
+    end 
 end
