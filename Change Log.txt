@@ -1,3 +1,18 @@
+## 1.4.5.23 ##
+==============
+-- Added display of "OR" quest items for when you have multiple possible objectives but only need to complete 1.
+-- Optional quest notes or optional objectives will be preceeded by "**" and of the optional color.
+-- Cleaned up code that controlled visibility of the tracker
+-- Added option to hide tracker in combat - Keybind to hide tracker will override this.
+
+"OR" display of quests os for quests where you have more than one objective, but only need to complete one.  For example you need to speak to one of two people.  These will show under the "Optional Objectives"  The color will be the optional color, and the quest condition will be lead by two "*".  Once you complete one of the them, it will update to the next phase of the quest.  For Example, *? Talk to Skorvild, the "**" indicats it is "Or" quest stage.
+
+New option to hide tracker in combat will be overriden by the keybind.  That is, if you already selected the keybind to hide the tracker it will not become visibile again until you press the keybind again.  Did this so that the game is making it visible when you want it to be.
+
+I found many issues with the tracker hiding, cleaned up the code and it appears to be functioning correctly.  It should hide when the side menu is opened, the top menu is opened, in any of the character views, when any of the crafting windows are open, including CraftStore crafting windows.  If there is any issues please let me know.
+
+----------------------------------------------------------------------------------------------
+
 ## 1.4.4.23 ##
 ==============
 -- Fixed two registrations of same event.

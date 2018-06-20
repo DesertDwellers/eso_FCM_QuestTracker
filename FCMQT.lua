@@ -1,6 +1,6 @@
 ﻿-- Name    : Fully Customizable MultiQuests Tracker (FCMQT)
 -- Author  : DesertDwellers Original Coding by Black Storm
--- Version : 1.4.4.23
+-- Version : 1.4.5.23
 -- Date    : 2017/09/01
 FCMQT = FCMQT or {}
 
@@ -38,6 +38,7 @@ FCMQT.CyrodiilNumZoneIndex = 37
 
 
 FCMQT.DEBUG = 0
+
 SLASH_COMMANDS["/fcmqt_debug1"] = FCMQT.CMD_DEBUG1
 SLASH_COMMANDS["/fcmqt_debug2"] = FCMQT.CMD_DEBUG2
 SLASH_COMMANDS["/fcmqt_debug3"] = FCMQT.CMD_DEBUG3
@@ -234,20 +235,32 @@ function FCMQT.AddNewContent(qindex, qstep, qtext, mytype, qzone, qfocusedzoneva
 		FCMQT.textbox[FCMQT.boxmarker]:SetHandler()
 	end	
 	local CurrentFocusedQuest = GetTrackedIsAssisted(1,qindex,0)
+	-- Quest conditions/steps assigment of mytype
+	-- 1  = Objective
+	-- 2  = Objective Completed
+	-- 3  = ?? Optional
+	-- 4  = ?? Optional
+	-- 5  = Optional Objective
+	-- 6  = Optional Objective Completed
+	-- 7  = Hint
+	-- 8  = Hint Completed
+	-- 9  = Hidden Hint
+	-- 10 = Hidden Hint Completed
+	
 	if mytype == 2 then
 		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextCompleteColor.r, FCMQT.SavedVars.TextCompleteColor.g, FCMQT.SavedVars.TextCompleteColor.b,FCMQT.SavedVars.TextCompleteColor.a)
 	elseif mytype == 3 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_optional.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(" ** "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 4 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_optional.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(" ** "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalCompleteColor.r, FCMQT.SavedVars.TextOptionalCompleteColor.g, FCMQT.SavedVars.TextOptionalCompleteColor.b, FCMQT.SavedVars.TextOptionalCompleteColor.a)
 	elseif mytype == 5 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText("**"..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(" *? "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 6 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText("**"..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(" *? "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 7 then
 		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
@@ -324,6 +337,7 @@ function FCMQT.ShowQuestTimer(_timerEnd)
 	EM:RegisterForUpdate("FCMQT_Update_Timer", 10, function() FCMQT.UpdateQuestTime(_timerEnd) end, 10)
 	FCMQT.isTimedQuest = true
 	FCMQT.boxqtimer:SetHidden(false)
+	FCMQT.boxqtimer:SetAlpha(1)
 	FCMQT.UpdateQuestTime(_timerEnd)
 	
 end
@@ -344,7 +358,7 @@ function FCMQT.GetQuestTimer(i)
 		end
 	else
 		FCMQT.isTimedQuest = false
-		FCMQT.boxqtimer:SetHidden(true)
+		--FCMQT.boxqtimer:SetHidden(true)
 	end
 end	
 
@@ -365,14 +379,12 @@ function FCMQT.LoadQuestsInfo(i)
 			local qzone, qobjective, qzoneidx, poiIndex = GetJournalQuestLocationInfo(i)
 			FCMQT.GetQuestTimer(i)
 			if FCMQT.DEBUG == 1 then 
-				d("**QUEST**********************************************************")
-				d("DEBUG "..qname.."  ZoneIndex : "..qzoneidx.." / Zone : "..qzone)
+				d("**QUEST START**********************************************************")
+				d("* Quest : "..qname.."  ZoneIndex : "..qzoneidx.." / Zone : "..qzone)
 				local currentmapidx = GetCurrentMapZoneIndex()
-				d("Player IDX Location: "..currentmapidx)
-				if tracked == true then d("Is Tracked : True")
-				else d("Is Tracked : false")
-				end
-				d("QType : "..qtype.."  backgroundText : "..backgroundText.." / activeStepText : "..activeStepText)
+				d("* Player IDX Location: "..currentmapidx)
+				if tracked == true then d("Is Tracked : True") else d("* Is Tracked : false")end
+				d("* QuestType : "..qtype.."  backgroundText : "..backgroundText.." / activeStepText : "..activeStepText)
 			end
 			-- Collect infos for table sort
 			qzone = #qzone > 0 and zo_strformat(SI_QUEST_JOURNAL_ZONE_FORMAT, qzone) or zo_strformat(SI_QUEST_JOURNAL_GENERAL_CATEGORY)
@@ -403,8 +415,8 @@ function FCMQT.LoadQuestsInfo(i)
 			end
 			-- Debug info focused quest and zone
 			if FCMQT.DEBUG == 1 then 
-				d("Found focused zone "..FCMQT.FocusedZone.." zone idx "..FCMQT.FocusedZoneIdx.."  zoneval "..FCMQT.QuestList[FCMQT.varnumquest].focusedzoneval)
-				if FCMQT.QuestList[FCMQT.varnumquest].focusquest == 1 then d("Focused Quest") else d("Not Focused Quest") end
+				d("* Found focused zone "..FCMQT.FocusedZone.." zone idx "..FCMQT.FocusedZoneIdx.."  zoneval "..FCMQT.QuestList[FCMQT.varnumquest].focusedzoneval)
+				if FCMQT.QuestList[FCMQT.varnumquest].focusquest == 1 then d("* Focused Quest") else d("* Not Focused Quest") end
 			end
 			FCMQT.QuestList[FCMQT.varnumquest].name = qname
 			FCMQT.QuestList[FCMQT.varnumquest].type = qtype
@@ -447,22 +459,34 @@ function FCMQT.LoadQuestsInfo(i)
 					FCMQT.QuestList[FCMQT.varnumquest].myzone = FCMQT.QuestList[FCMQT.varnumquest].myzone.." (TEST)"
 				end
 			end
-			if FCMQT.DEBUG == 1 then d("Zone Name: "..FCMQT.QuestList[FCMQT.varnumquest].zone.."     MyZone Name: "..FCMQT.QuestList[FCMQT.varnumquest].myzone) end
+			if FCMQT.DEBUG == 1 then d("* Zone Name: "..FCMQT.QuestList[FCMQT.varnumquest].zone.."     MyZone Name: "..FCMQT.QuestList[FCMQT.varnumquest].myzone) end
 			-- Quest Steps
 			FCMQT.QuestList[FCMQT.varnumquest].step = {}
 			local k = 1
 			local condcheck2 = {}
 			local nbStep = GetJournalQuestNumSteps(i)
 			if FCMQT.DEBUG == 1 then 
-				d("qtype : "..qtype.." / ActiveStepType : "..activeStepType.. " / nbStep : "..nbStep)
-				d("--END QUEST INFO---Start Steps Info------------")
+				d("* Number of steps: "..nbStep)
+				d("**QUEST END************************************************************")
+				d("+-Steps Info START=====================================================")
 			end
 			for idx=1, nbStep do
-				if FCMQT.DEBUG == 1 then d("***STEP idx "..idx.."***************************************") end
-				if activeStepType == 3 then
+				if FCMQT.DEBUG == 1 then d(": Step idx "..idx.." of nb Steps "..nbStep) end
+				-- If active step 
+				-- 		QUEST_STEP_TYPE_AND 			= 1
+				--		QUEST_STEP_TYPE_BRANCH 			= 4
+				--		QUEST_STEP_TYPE_END 			= 3
+				--		QUEST_STEP_TYPE_ITERATION_BEGIN = 1
+				--		QUEST_STEP_TYPE_ITERATION_END 	= 4
+				--		QUEST_STEP_TYPE_OR = 2
+				if activeStepType == QUEST_STEP_TYPE_END then
 					local goal, dialog, confirmComplete, declineComplete, backgroundText, journalStepText = GetJournalQuestEnding(i)
 					if (goal ~= nil and goal ~= "") then
-						if FCMQT.DEBUG == 1 then d("Step idx "..idx.." -> Goal : "..goal.." Step Type END") end
+						if FCMQT.DEBUG == 1 then 
+							d(": Step idx "..idx.." -> Goal : "..goal.." Step Type = "..activeStepType) 
+							d(":     Background text: "..backgroundText)
+							d(":     Journal Step Text: "..journalStepText)
+						end
 						if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
 							FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
 						end
@@ -474,9 +498,15 @@ function FCMQT.LoadQuestsInfo(i)
 					local qstep, visibility, stepType, trackerOverrideText, numConditions = GetJournalQuestStepInfo(i,idx)
 					if (qstep ~= nil) then
 						if FCMQT.DEBUG == 1 then 
-							d("Step"..idx.." type : "..stepType.." 1 AND 2 OR   over : "..trackerOverrideText.." / -> Step : "..qstep)
-						end 
-						if FCMQT.DEBUG == 1 then d("Visibility check and mytype assignments -----------------") end
+							d(": Step idx "..idx.."  Num of Conditions: "..numConditions.." stepType : "..stepType.." AND = 1, BRANCH = 4, OR = 2") 
+							d(":     Tracker OverRide Text: "..trackerOverrideText)
+							if visibility ~= nil then
+								d(":     Visibility: "..visibility.." -- Hidden = 2, Hint = 0, Optional = 1, Nil = Objective")
+							else
+								d(":     Visibility: NIL -- Hidden = 2, Hint = 0, Optional = 1, Nil = Objective")
+							end
+						end
+						if FCMQT.DEBUG == 1 then d("+ My Type Assignements ------------------- -----------------") end
 						if visibility == nil or visibility == QUEST_STEP_VISIBILITY_HINT or visibility == QUEST_STEP_VISIBILITY_OPTIONAL or visibility == QUEST_STEP_VISIBILITY_HIDDEN then
 							--**REMOVE 1.3**if ((visibility == 0 or visibility == 1 or visibility == 2) and FCMQT.HideInfoHintsOption == false) then
 							if ((visibility == nil or visibility == QUEST_STEP_VISIBILITY_HIDDEN or visibility == QUEST_STEP_VISIBILITY_HINT or visibility == QUEST_STEP_VISIBILITY_OPTIONAL) and FCMQT.SavedVars.HideInfoOptionalObjOption == true) then
@@ -495,135 +525,168 @@ function FCMQT.LoadQuestsInfo(i)
 								end
 								FCMQT.QuestList[FCMQT.varnumquest].step[k].text = qstep
 								FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
-								-- DEBUG1 Start
 								if FCMQT.DEBUG == 1 then 
-									d("Step Added "..k.." Visibility: "..visibility.."  mytype "..mytype)
-									d("Step text "..qstep)
+									d(":     Step Added "..k.." Visibility: "..visibility.."  mytype "..mytype)
+									d(":     Step text "..qstep.."    stepType "..stepType)
+									d(":     INFO HIDDEN")
+									d(":---------------------------------------------------------------------")
 								end
-								-- DEBUG1 End
 								k = k + 1
 							else
 								local checkstep = ""
-								if FCMQT.DEBUG == 1 then d("Visibiliyt nil   numConditions : "..numConditions) end
+								--Conditions start
 								for m=1, numConditions do
-									if FCMQT.DEBUG == 1 then d("Step num : "..k) end
 									local mytype = 1
 									local conditionText, current, max, isFailCondition, isComplete, isCreditShared = GetJournalQuestConditionInfo(i, idx, m)
+									if FCMQT.DEBUG == 1 then 
+										d(": STEP : "..k.."  Condition: "..m) 
+										if conditionText ~= nil and conditionText ~= "" then
+											d(":    conditionText : "..conditionText) 
+										else
+											d(":    conditionText : NIL/Blank")
+										end
+									end
 									if conditionText ~= nil and conditionText ~= "" then
-										if activeStepType == 2 then
+										-- if it is QUEST_STEP_TYPE_OR active step (2) and current step (idx) > nbStep then break out
+										if activeStepType == QUEST_STEP_TYPE_OR then
 											if idx >= nbStep and idx > 1 then
+												if FCMQT.DEBUG == 1 then d(": !!BREAK!! idx >=nbStep  idx "..idx.."  nbStep: "..nbStep) end
 												break;
 											end
 										end
-										
+										-- checkstep starts as "" so not equal to qstep
+										-- Quest conditions/steps assigment of mytype
+										-- 1  = Objective
+										-- 2  = Objective Completed
+										-- 3  = ?? Optional
+										-- 4  = ?? Optional Completed
+										-- 5  = Optional Objective
+										-- 6  = Optional Objective Completed
+										-- 7  = Hint
+										-- 8  = Hint Completed
+										-- 9  = Hidden Hint
+										-- 10 = Hidden Hint Completed
 										if checkstep ~= qstep then
 											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
 											-- Optional quests infos
-												if FCMQT.DEBUG == 1 then d("Cond Added1 vis=1 -- Optional ") end
 												if isComplete ~= true then mytype = 3 else mytype = 4 end
 											-- quests hints infos
 											elseif visibility == QUEST_STEP_VISIBILITY_HINT then
-												if FCMQT.DEBUG == 1 then d("Cond Added1 vis=0 -- Hint ") end
 												if isComplete ~= true then mytype = 7 else mytype = 8 end
 											-- hidden quests hints infos
 											elseif visibility == QUEST_STEP_VISIBILITY_HIDDEN then
-												if FCMQT.DEBUG == 1 then d("Cond Added1 vis=2 -- Hidden ") end
 												if isComplete ~= true then mytype = 9 else mytype = 10 end
 											end
+											-- if anything but nil visibility
 											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL or visibility == QUEST_STEP_VISIBILITY_HINT or visibility == QUEST_STEP_VISIBILITY_HIDDEN then
 												if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
 													FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
 												end
 												checkstep = qstep
 												table.insert(condcheck2, qstep)
+												if FCMQT.DEBUG == 1 then d(":     1-table.insert condcheck2,qtext") end
 												FCMQT.QuestList[FCMQT.varnumquest].step[k].text = qstep
 												FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
 												-- DEBUG1 Start
 												if FCMQT.DEBUG == 1 then 
-													d("Cond/Step Added "..k.." Visibility: "..visibility.."  mytype "..mytype)
-													d("Cond/Step "..qstep)
+													d(":     Cond/Step Added   k: "..k.." idx: "..idx.." Condition: "..m.." Of NumConditions: "..numConditions.." Visibility: "..visibility)
+													d(":     Cond/Step "..qstep.."  mytype "..mytype)
 												end
 												-- DEBUG1 End
 												k = k + 1
 											end
-											if FCMQT.DEBUG == 1 and visibility == nil then d("Cond/Step Visibility is nil") end
+											if FCMQT.DEBUG == 1 and visibility == nil then 
+												d(":     !!Cond/Step NOT Added   k: "..k.." idx: "..idx.." Condition: "..m.." Of NumConditions: "..numConditions.." Visibility: NIL")
+												d(":     !!Cond/Step "..qstep.."  mytype "..mytype)
+											end
 										end
-										if isComplete ~= true then
-											if FCMQT.DEBUG == 1 then d("Cond num : "..k.." -> Cond : "..conditionText.." / "..current.." / "..max) end
-											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
-												mytype = 5
-												if FCMQT.DEBUG == 1 then d("Cond Added vis=1 -- Optional -- myType = "..mytype) end
-											elseif visibility == QUEST_STEP_VISIBILITY_HINT then
-												mytype = 7
-												if FCMQT.DEBUG == 1 then d("Cond Added vis=0 -- Hint -- mytype - "..mytype) end
-											elseif visibility ==QUEST_STEP_VISIBILITY_HIDDEN then
-												mytype = 9
-												if FCMQT.DEBUG == 1 then d("Cond Added vis=2 -- Hidden -- mytype - "..mytype) end
+										if checkstep ~= conditionText then
+											if isComplete ~= true then
+												if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
+													mytype = 3
+												elseif visibility == QUEST_STEP_VISIBILITY_HINT then
+													mytype = 7
+												elseif visibility ==QUEST_STEP_VISIBILITY_HIDDEN then
+													mytype = 9
+												elseif visibility == nil and stepType == QUEST_STEP_TYPE_OR then
+													mytype = 5
+												else
+													mytype = 1
+												end
+												local conditionTextClean = conditionText:match("TRACKER GOAL TEXT*")
+												local condcheckmulti = true
+												if FCMQT.DEBUG == 1 then 
+													d(":      conditionText :"..conditionText.." Not completed   mytype: "..mytype)
+													if conditionTextClean == nil then d(":     conditionTextClean is NIL") else d(":     conditionTextClean: "..conditionTextClean) end
+												end
+												for key,value in pairs(condcheck2) do
+													--if ((value == conditionText and visibility ~= nil) or (value:find(conditionText, 1, true) and visibility ~= nil) or stepType == 2) then
+													if ((value == conditionText and visibility ~= nil) or (value:find(conditionText, 1, true) and visibility ~= nil)) then
+														condcheckmulti = false
+													end
+												end
+												if conditionTextClean == nil and condcheckmulti == true then
+													if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
+														FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
+													end
+													table.insert(condcheck2, conditionText)
+													checkstep = conditionText
+													if FCMQT.DEBUG == 1 then d(":     2-table.insert condcheck2,conditionText") end
+													FCMQT.QuestList[FCMQT.varnumquest].step[k].text = conditionText
+													FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
+													k = k + 1
+												end
 											else
-												mytype = 1
-												if FCMQT.DEBUG == 1 then d("Cond Added vis=nil -- Nil -- mytype - "..mytype) end
-											end
-											local conditionTextClean = conditionText:match("TRACKER GOAL TEXT*")
-											local condcheckmulti = true
-											for key,value in pairs(condcheck2) do
-												if ((value == conditionText and visibility ~= nil) or (value:find(conditionText, 1, true) and visibility ~= nil) or stepType == 2) then
-													condcheckmulti = false
+												if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
+													mytype = 4
+												elseif visibility == QUEST_STEP_VISIBILITY_HINT then
+													mytype = 8
+												elseif visibility == QUEST_STEP_VISIBILITY_HIDDEN then
+													mytype = 10
+												elseif visibility == nil and stepType == QUEST_STEP_TYPE_OR then
+													mytype = 6
+												else
+													mytype = 2
 												end
-											end
-											if conditionTextClean == nil and condcheckmulti == true then
-												if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
-													FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
+												local conditionTextClean = conditionText:match("TRACKER GOAL TEXT*")
+												local condcheckmulti = true
+												if FCMQT.DEBUG == 1 then 
+													d(":      conditionText :"..conditionText.." Completed   mytype: "..mytype)
+													if conditionTextClean ~= nil then d(":     conditionTextClean is NIL") else d(":     conditionTextClean: "..conditionTextClean) end
 												end
-												table.insert(condcheck2, conditionText)
-												FCMQT.QuestList[FCMQT.varnumquest].step[k].text = conditionText
-												FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
-												k = k + 1
-											end
-										else
-											if FCMQT.DEBUG == 1 then d("Cond num : "..k.." -> Cond Complete : "..conditionText) end
-											if visibility == QUEST_STEP_VISIBILITY_OPTIONAL then
-												mytype = 6
-												if FCMQT.DEBUG == 1 then d("Cond Complete Added vis=1 -- Optional -- mytype - "..mytype) end
-											elseif visibility == QUEST_STEP_VISIBILITY_HINT then
-												mytype = 8
-												if FCMQT.DEBUG == 1 then d("Cond Complete Added vis=0 -- Hint -- mytype - "..mytype) end
-											elseif visibility == QUEST_STEP_VISIBILITY_HIDDEN then
-												mytype = 10
-												if FCMQT.DEBUG == 1 then d("Cond Complete Added vis=2 -- Hidden -- mytype - "..mytype) end
-											else
-												mytype = 2
-												if FCMQT.DEBUG == 1 then d("Cond Complete Added v=nil -- Nil -- mytype - "..mytype) end
-											end
-											local conditionTextClean = conditionText:match("TRACKER GOAL TEXT*")
-											local condcheckmulti = true
-											for key,value in pairs(condcheck2) do
-												if ((value == conditionText and visibility ~= nil) or (value:find(conditionText, 1, true) and visibility ~= nil) or stepType == 2) then
-													condcheckmulti = false
+												for key,value in pairs(condcheck2) do
+													--if ((value == conditionText and visibility ~= nil) or (value:find(conditionText, 1, true) and visibility ~= nil) or stepType == 2) then
+													if ((value == conditionText and visibility ~= nil) or (value:find(conditionText, 1, true) and visibility ~= nil)) then
+														condcheckmulti = false
+													end
 												end
-											end
-											if conditionTextClean == nil and condcheckmulti == true then
-												if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
-													FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
+												if conditionTextClean == nil and condcheckmulti == true then
+													if not FCMQT.QuestList[FCMQT.varnumquest].step[k] then
+														FCMQT.QuestList[FCMQT.varnumquest].step[k] = {}
+													end
+													checkstep = conditionText
+													table.insert(condcheck2, conditionText)
+													if FCMQT.DEBUG == 1 then d(":     3-table.insert condcheck2,conditionText") end
+													FCMQT.QuestList[FCMQT.varnumquest].step[k].text = conditionText
+													FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
+													k = k + 1
 												end
-												table.insert(condcheck2, conditionText)
-												FCMQT.QuestList[FCMQT.varnumquest].step[k].text = conditionText
-												FCMQT.QuestList[FCMQT.varnumquest].step[k].mytype = mytype
-												k = k + 1
 											end
 										end
 									end
 								end
 							end
-						else
-							if FCMQT.DEBUG == 1 then
+							else
+								if FCMQT.DEBUG == 1 then
 								d("!!!BAD VIS!!!!!")
 								d("Vis Not Valid Step"..idx.." type : "..stepType.." 1 AND 2 OR   over : "..trackerOverrideText.." / -> Step : "..qstep.."  Vis "..visibility)
 							end
 						end
 					end
 				end
+				if FCMQT.DEBUG == 1 then d("+") end
 			end
-		if FCMQT.DEBUG == 1 then d("---STEP END idx ----------------------------------------") end
+		if FCMQT.DEBUG == 1 then d("+-Steps Info End==================================================") end
 		FCMQT.varnumquest = FCMQT.varnumquest + 1
 	end
 end
@@ -1140,6 +1203,7 @@ function FCMQT.Init(eventCode, addOnName)
 		EM:RegisterForEvent("FCMQT", EVENT_QUEST_TIMER_PAUSED, FCMQT.QuestsListUpdate)
 		EM:RegisterForEvent("FCMQT", EVENT_QUEST_LIST_UPDATED, FCMQT.QuestsListUpdate)
 		EM:RegisterForEvent("FCMQT", EVENT_QUEST_CONDITION_COUNTER_CHANGED, FCMQT.QuestsListUpdate)
+		EM:RegisterForEvent("FCMQT", EVENT_PLAYER_COMBAT_STATE, FCMQT.CheckMode)	-- To hide QT when in combat
 			-- Auto Share Quests
 			local PlayerIsGrouped = IsUnitGrouped('player')
 			if PlayerIsGrouped and FCMQT.SavedVars.AutoShare == true and qindex ~= nil then

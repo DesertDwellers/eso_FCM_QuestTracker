@@ -1,6 +1,6 @@
 FCMQT = FCMQT or {}
 -- Defaults Vars
--- Version : 1.4.4.23
+-- Version : 1.4.5.23
 
 function CreateSettings()
 
@@ -10,7 +10,7 @@ function CreateSettings()
     local LMP   = LibStub("LibMediaProvider-1.0")
 	
 	local QTAuthor = "DesertDwellers"
-	local QTVersion = "1.4.4.23"
+	local QTVersion = "1.4.5.23"
 	local fontList = LMP:List('font')
 	local langList = {"English", "Français", "Deutsch"}
 	local fontStyles = {"normal", "outline", "shadow", "soft-shadow-thick", "soft-shadow-thin", "thick-outline"}
@@ -57,6 +57,13 @@ function CreateSettings()
 				getFunc = FCMQT.GetPreset,
 				setFunc = FCMQT.SetPreset,
 				warning = FCMQT.mylanguage.lang_menu_warn_2,
+			},
+			{--Hide When in Combat
+				type = "checkbox",
+				name = FCMQT.mylanguage.lang_HideInCombat,
+				tooltip = FCMQT.mylanguage.lang_HideInCombat_tip,
+				getFunc = FCMQT.GetHideInCombatOption,
+				setFunc = FCMQT.SetHideInCombatOption,
 			},
 			{--Overall Transparency, if back ground
 				type = "slider",

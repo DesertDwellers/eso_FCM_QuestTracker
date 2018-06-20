@@ -1,6 +1,6 @@
 FCMQT = FCMQT or {}
 -- Defaults Vars
--- Version : 1.4.4.23
+-- Version : 1.4.5.23
 FCMQT.defaults = {
 					["position"] = { ["point"]=TOPLEFT, ["relativePoint"]=TOPLEFT, ["offsetX"]=1000, ["offsetY"]=300 },
 					["Language"] = "English",
@@ -89,6 +89,7 @@ FCMQT.defaults = {
 					["HideHiddenOptions"] = true,
 					["HintColor"] = { ["r"]=0.945098, ["g"]=1, ["b"]=0.796078, ["a"]=0.950820 },
 					["HintCompleteColor"] = { ["r"]=0.603922, ["g"]=0.603922, ["b"]=0.603922, ["a"]=0.950820 },
+					["HideInCombatOption"] =false,
 					
 					
 }
@@ -181,7 +182,7 @@ FCMQT.PresetDefaults = {
 					["HideHiddenOptions"] = true,
 					["HintColor"] = { ["r"]=0.945098, ["g"]=1, ["b"]=0.796078, ["a"]=0.950820 },
 					["HintCompleteColor"] = { ["r"]=0.603922, ["g"]=0.603922, ["b"]=0.603922, ["a"]=0.950820 },
-					
+					["HideInCombatOption"] =false,
 }
 
 FCMQT.preset1 = {
@@ -272,5 +273,5 @@ FCMQT.preset1 = {
 					["HideHiddenOptions"] = true,
 					["HintColor"] = { ["r"]=0.945098, ["g"]=1, ["b"]=0.796078, ["a"]=0.950820 },
 					["HintCompleteColor"] = { ["r"]=0.603922, ["g"]=0.603922, ["b"]=0.603922, ["a"]=0.950820 },
-									
+					["HideInCombatOption"] =false,
 }
