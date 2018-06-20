@@ -7,7 +7,7 @@
 FCMQT = FCMQT or {}
 
 -- General Buffer made by Wykkyd : http://wiki.esoui.com/Event_%26_Update_Buffering
--- Version : 1.4.4.23
+-- Version : 1.4.5.23
 local BufferTable = {}
 local function BufferReached(key, buffer)
 if key == nil then return end
@@ -23,31 +23,60 @@ end
 
 -- Check menu witch are opened
 function FCMQT.CheckMode()
+
 	if FCMQT.main then
 		local InteractiveMenuIsHidden = ZO_KeybindStripControl:IsHidden()
 		local GameMenuIsHidden = ZO_GameMenu_InGame:IsHidden()
 		local DialogueIsHidden = ZO_InteractWindow:IsHidden()
 		local JournalIsHidden = ZO_QuestJournal:IsHidden()
+		local HideInCombat = true
+		
 		--checks for craft store
 		ZO_FocusedQuestTrackerPanel:SetHidden(true)
-		local CSRune_isHidden = true
-		local CSCook_isHidden = true
+		--FCMQT.main:SetHidden(false) end
+
 		if CS then
+			local CSRune_isHidden = true
+			local CSCook_isHidden = true
 			--d("CraftStore loaded.")
 			CSRune_isHidden = CraftStoreFixed_Rune:IsHidden()
 			CSCook_isHidden = CraftStoreFixed_Cook:IsHidden()
-		end
-		if CSRune_isHidden == false or CSCook_isHidden == false then
-			FCMQT.main:SetHidden(true)
+			
+			if CSRune_isHidden == false or CSCook_isHidden == false then
+				--FCMQT.bg:ToggleHidden()
+				-- test cs is still working
+				FCMQT.main:SetHidden(true)
+			else
+				--FCMQT.main:SetHidden(false)
+				if InteractiveMenuIsHidden == true and GameMenuIsHidden == true and DialogueIsHidden == true then
+					FCMQT.main:SetHidden(false)
+					if IsUnitInCombat('player') and FCMQT.SavedVars.HideInCombatOption then FCMQT.main:SetHidden(true) else FCMQT.main:SetHidden(false) end
+				elseif InteractiveMenuIsHidden == false or GameMenuIsHidden == false or DialogueIsHidden == false then
+					FCMQT.main:SetHidden(true)
+				end
+			end
 		else
 			if InteractiveMenuIsHidden == true and GameMenuIsHidden == true and DialogueIsHidden == true then
 				FCMQT.main:SetHidden(false)
+				if IsUnitInCombat('player') and FCMQT.SavedVars.HideInCombatOption then FCMQT.main:SetHidden(true) else FCMQT.main:SetHidden(false) end
 			elseif InteractiveMenuIsHidden == false or GameMenuIsHidden == false or DialogueIsHidden == false then
 				FCMQT.main:SetHidden(true)
 			end
 		end
-		if JournalIsHidden == false then
+	end
+end
+		--if JournalIsHidden == false then
 			-- FCMQT.BoxQuestJournal()
+
+
+function FCMQT.CombatState()
+	local FCMQT_isHidden = FCMQT.main:IsHidden()
+	
+	if FCMQT_isHidden == false then
+		if IsUnitInCombat('player') then
+			FCMQT.main:SetHidden(true)
+		else
+			FCMQT.main:SetHidden(false)
 		end
 	end
 end
@@ -112,6 +141,7 @@ function FCMQT.SetPreset(newPreset)
 		FCMQT.SavedVars.Button3 = FCMQT.PresetDefaults.Button3
 		FCMQT.SavedVars.Button4 = FCMQT.PresetDefaults.Button4
 		FCMQT.SavedVars.Button5 = FCMQT.PresetDefaults.Button5
+		FCMQT.SavedVars.HideInCombatOption = FCMQT.PresetDefaults.HideInCombatOption
 		
 		--for i,v pairs(FCMQT.PresetDefaults)
 			--d(v)
@@ -169,6 +199,7 @@ function FCMQT.SetPreset(newPreset)
 		FCMQT.SavedVars.Button3 = FCMQT.preset1.Button3
 		FCMQT.SavedVars.Button4 = FCMQT.preset1.Button4
 		FCMQT.SavedVars.Button5 = FCMQT.preset1.Button5
+		FCMQT.SavedVars.HideInCombatOption = FCMQT.Preset1.HideInCombatOption
 	else
 		-- nothing
 	end
@@ -806,7 +837,14 @@ function FCMQT.SetQuestsShowTimerOption(newOpt)
 	FCMQT.QuestsListUpdate(1)
 end
 
+function FCMQT.GetHideInCombatOption()
+	return FCMQT.SavedVars.HideInCombatOption
+end
 
+function FCMQT.SetHideInCombatOption(newOpt)
+	FCMQT.SavedVars.HideInCombatOption = newOpt
+	FCMQT.QuestsListUpdate(1)
+end
 
 
 function FCMQT.GetHideOptObjective()

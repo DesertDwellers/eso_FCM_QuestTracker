@@ -10,7 +10,7 @@ FCMQT.language.fr = {
 	-- û : \195\187
 	
 	-- Menu
-	-- Version : 1.4.4.23
+	-- Version : 1.4.5.23
 	-- Need Transaltions
 	["lang_quests_category_view_settings"] = "Settings for Category Zone View",
 	["lang_class_show_zone"] = "Show zone in Class Category Zone View",
@@ -35,7 +35,8 @@ FCMQT.language.fr = {
 	["lang_HintColor_tip"] = "Color for hints for quest",
 	["lang_HintCompleteColor"] = "Quest Hints Completed Color",
 	["lang_HintCompleteColor_tip"] = "Quest hints completed color.",
-	
+	["lang_HideInCombat"] = "Hide tracker when in combat",
+	["lang_HideInCombat_tip"] = "Hide tracker when in combat",
 	
 	
 	

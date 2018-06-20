@@ -1,7 +1,7 @@
 FCMQT.language = {}
 FCMQT.language.us = {
 	-- Menu
-	-- Version : 1.4.4.23
+	-- Version : 1.4.5.23
 	["lang_quests_category_view_settings"] = "Settings for Category Zone View",
 	["lang_class_show_zone"] = "Show zone in Class Category Zone View",
 	["lang_class_show_zone_tip"] = "When using Category Zone View show the zone of the Class quests",
@@ -25,7 +25,8 @@ FCMQT.language.us = {
 	["lang_HintColor_tip"] = "Color for hints for quest",
 	["lang_HintCompleteColor"] = "Quest Hints Completed Color",
 	["lang_HintCompleteColor_tip"] = "Quest hints completed color.",
-
+	["lang_HideInCombat"] = "Hide tracker when in combat",
+	["lang_HideInCombat_tip"] = "Hide tracker when in combat",
 
 	
 	
