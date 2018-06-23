@@ -10,7 +10,7 @@ FCMQT.language.fr = {
 	-- û : \195\187
 	
 	-- Menu
-	-- Version : 1.5.0.23.b1
+	-- Version : 1.4.5.23
 	-- Need Transaltions
 	["lang_quests_category_view_settings"] = "Settings for Category Zone View",
 	["lang_class_show_zone"] = "Show zone in Class Category Zone View",
