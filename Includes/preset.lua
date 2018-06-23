@@ -1,6 +1,6 @@
 FCMQT = FCMQT or {}
 -- Defaults Vars
--- Version : 1.4.5.23
+-- Version : 1.5.0.23.b1
 FCMQT.defaults = {
 					["position"] = { ["point"]=TOPLEFT, ["relativePoint"]=TOPLEFT, ["offsetX"]=1000, ["offsetY"]=300 },
 					["Language"] = "English",

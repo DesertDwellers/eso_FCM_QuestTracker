@@ -1,3 +1,55 @@
+## 1.5.0.23 ##
+==============
+-- Added Icons for quest steps (see below for break down)
+-- Added "Quest Options Menu" to the mouse setup, provides a list of actions to perform. (see below for actions)
+
+Quest Step Icons
+-- Objective - Gold Quest Marker
+-- Objective Completed - Gold Quest Marker with Green Check Mark
+-- Or/Multiple Objective - Gold "+" sign
+-- Optional Objective - White Quest Marker
+-- Hint - Gray Dialog Icon
+-- Hidden Hint - Red Eye
+
+Quest Options Menu
+-- Change Assisted Quest
+-- Remove Quest
+-- Share Quest
+-- Show On Map
+
+
+## 1.4.6.23 ##
+==============
+-- Moved "Or" items to Objective, using the symbols of "+ " but of the objective color.
+-- Changed labels on Quest Steps.
+        *  = Objective
+        +  = Choice Objective (Or Objectives, or choice of location)
+        ** = Optional Objective/Comments
+
+I apologize, the game actually has it "Or" items labeled as objectives, I put them under a different category so they would stand out more in the tracker.  I did not take into account that some people could be hiding hidden, hints, or optional items.  I also discovered because of feedback from users, that the "Or" items are not only used when you have a choice of which NPC to talk to for example, it can also be used when you have a choice of where to go to complete this, or there are multiple locations and yo may only have to go to some of them not all of them.
+
+So I moved these items back to being a Objective, but instead of being proceeded by a "*?" it is proceeded by a "+".   For example in the Madness in Shadowfen quest at the end you are to speak with Alvur Baren, it is showing up as he is actually in multiple location, you can actually turn the quest in at three different locations, as he is in Mages Guild in Elden Root, Wayrest, and Mournhold.  This is not limited to just quest turn ins but also cases where you have multiple locations but only have to get one or a few but not all locations.
+
+I still want to mark this quest as something different especially when you do have the original intent of a choice between two people.  So these quests steps will now be proceeded with a "+", indicating you do have choices.  If actual independent choices show up, you only will need to complete one.  If only one step shows as a "+" then you have a choice where to obtain that objective.
+
+----------------------------------------------------------------------------------------------
+
+
+## 1.4.5.23 ##
+==========
+-- Added display of "OR" quest items for when you have multiple possible objectives but only need to complete 1.
+-- Optional quest notes or optional objectives will be preceeded by "**" and of the optional color.
+-- Cleaned up code that controlled visibility of the tracker
+-- Added option to hide tracker in combat - Keybind to hide tracker will override this.
+
+"OR" display of quests os for quests where you have more than one objective, but only need to complete one.  For example you need to speak to one of two people.  These will show under the "Optional Objectives"  The color will be the optional color, and the quest condition will be lead by two "*".  Once you complete one of the them, it will update to the next phase of the quest.  For Example, *? Talk to Skorvild, the "**" indicats it is "Or" quest stage.
+
+New option to hide tracker in combat will be overriden by the keybind.  That is, if you already selected the keybind to hide the tracker it will not become visibile again until you press the keybind again.  Did this so that the game is making it visible when you want it to be.
+
+I found many issues with the tracker hiding, cleaned up the code and it appears to be functioning correctly.  It should hide when the side menu is opened, the top menu is opened, in any of the character views, when any of the crafting windows are open, including CraftStore crafting windows.  If there is any issues please let me know.
+
+----------------------------------------------------------------------------------------------
+
 ## 1.4.5.23 ##
 ==============
 -- Added display of "OR" quest items for when you have multiple possible objectives but only need to complete 1.
