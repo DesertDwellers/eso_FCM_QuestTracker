@@ -1,3 +1,23 @@
+## 1.5.0.23 ##
+==============
+-- Added Icons for quest steps (see below for break down)
+-- Added "Quest Options Menu" to the mouse setup, provides a list of actions to perform. (see below for actions)
+
+Quest Step Icons
+-- Objective - Gold Quest Marker
+-- Objective Completed - Gold Quest Marker with Green Check Mark
+-- Or/Multiple Objective - Gold "+" sign
+-- Optional Objective - White Quest Marker
+-- Hint - Gray Dialog Icon
+-- Hidden Hint - Red Eye
+
+Quest Options Menu
+-- Change Assisted Quest
+-- Remove Quest
+-- Share Quest
+-- Show On Map
+
+
 ## 1.4.6.23 ##
 ==============
 -- Moved "Or" items to Objective, using the symbols of "+ " but of the objective color.
