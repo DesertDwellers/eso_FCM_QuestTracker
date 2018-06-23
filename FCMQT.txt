@@ -1,7 +1,7 @@
 ﻿## Title: FCM Quest Tracker
 ## APIVersion: 100023
 ## Author: DesertDwellers
-## Version: 1.4.5.23
+## Version: 1.5.0.23.b1
 ## OptionalDependsOn: LibAddonMenu-2.0 LibMediaProvider-1.0
 ## SavedVariables: FCMQTSavedVars
 

@@ -1,6 +1,6 @@
 FCMQT = FCMQT or {}
 -- Defaults Vars
--- Version : 1.4.5.23
+-- Version : 1.5.0.23.b1
 
 function CreateSettings()
 
@@ -10,12 +10,12 @@ function CreateSettings()
     local LMP   = LibStub("LibMediaProvider-1.0")
 	
 	local QTAuthor = "DesertDwellers"
-	local QTVersion = "1.4.5.23"
+	local QTVersion = "1.5.0.23.b1"
 	local fontList = LMP:List('font')
 	local langList = {"English", "Français", "Deutsch"}
 	local fontStyles = {"normal", "outline", "shadow", "soft-shadow-thick", "soft-shadow-thin", "thick-outline"}
 	local iconList = {"Arrow ESO (Default)", "Icon Dragonknight", "Icon Nightblade", "Icon Sorcerer", "Icon Templar"}
-	local actionList = {"None", "Change Assisted Quest", "Filter by Current Zone", "Share a Quest", "Show on Map", "Remove a Quest", "Quest Info to Chat"}
+	local actionList = {"None", "Change Assisted Quest", "Filter by Current Zone", "Share a Quest", "Show on Map", "Remove a Quest", "Quest Info to Chat", "Quest Options Menu"}
 	local sortList = {"Zone+Name", "Focused+Zone+Name"}
 	local DirectionList = {"TOP", "BOTTOM"}
 	local presetList = {"Custom", "Default", "Preset1"}

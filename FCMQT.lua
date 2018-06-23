@@ -1,6 +1,6 @@
 ﻿-- Name    : Fully Customizable MultiQuests Tracker (FCMQT)
 -- Author  : DesertDwellers Original Coding by Black Storm
--- Version : 1.4.5.23
+-- Version : 1.5.0.23.b1
 -- Date    : 2017/09/01
 FCMQT = FCMQT or {}
 
@@ -32,6 +32,7 @@ local Step_Type_OR = QUEST_STEP_TYPE_OR  -- 2
 local Step_Vis_Hidden = QUEST_STEP_VISIBILITY_HIDDEN -- 2
 local Step_Vis_Hint = QUEST_STEP_VISIBILITY_HINT -- 0
 local Step_Vis_Optional = QUEST_STEP_VISIBILITY_OPTIONAL -- 1
+
 
 FCMQT.CyrodiilNumZoneIndex = 37
 --**REMOVE 1.3**FCMQT.QuestTimer="Quest Time"
@@ -182,9 +183,9 @@ function FCMQT.CheckContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocused
 		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
 	elseif qcmytype == 4 and FCMQT.SavedVars.HideCompleteObjHints == false and FCMQT.SavedVars.HideOptionalInfo == false and FCMQT.HideInfoHintsOption == false then
 		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
-	elseif qcmytype == 5 and FCMQT.SavedVars.HideOptObjective == false and FCMQT.HideInfoHintsOption == false then
+	elseif qcmytype == 5 then
 		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
-	elseif qcmytype == 6 and FCMQT.SavedVars.HideCompleteObjHints == false and FCMQT.SavedVars.HideOptObjective == false and FCMQT.HideInfoHintsOption == false then
+	elseif qcmytype == 6 and FCMQT.SavedVars.HideCompleteObjHints == false then
 		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
 	elseif qcmytype == 7 and FCMQT.SavedVars.HideHintsOption == false and FCMQT.HideInfoHintsOption == false then
 		FCMQT.AddNewContent(qcindex, qcstep, qctext, qcmytype, qczone, qcfocusedzoneval)
@@ -238,44 +239,65 @@ function FCMQT.AddNewContent(qindex, qstep, qtext, mytype, qzone, qfocusedzoneva
 	-- Quest conditions/steps assigment of mytype
 	-- 1  = Objective
 	-- 2  = Objective Completed
-	-- 3  = ?? Optional
-	-- 4  = ?? Optional
-	-- 5  = Optional Objective
-	-- 6  = Optional Objective Completed
+	-- 3  = Optional Objective 
+	-- 4  = Optional Objective Completed
+	-- 5  = Objective Or
+	-- 6  = Objective Or Completed
 	-- 7  = Hint
 	-- 8  = Hint Completed
-	-- 9  = Hidden Hint
+	-- 9  = Hiddewn Hint
 	-- 10 = Hidden Hint Completed
-	
+	-- objectiveIcon - FCMQT/art/Icons/quest_icon1.dds (gold quest icon)
+	local objectiveIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- objectiveIcon_Completed - FCMQT/art/Icons/quest_completed_icon1.dds (gold quest icon with green check mark)
+	local objectiveIcon_completed = zo_iconFormat("FCMQT/art/Icons/quest_completed_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- orobjective - FCMQT/art/Icons/orObjective_icon1.dds (Gold + sign)
+	local orObjectiveIcon = zo_iconFormat("FCMQT/art/Icons/orObjective_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- hintIcon Mine???  "/esoui/art/hud/radialicon_whisper_disabled.dds"
+	local hintIcon = zo_iconFormat("/esoui/art/hud/radialicon_whisper_disabled.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- optional - "FCMQT/art/Icons/Quest_1.dds" 
+	local optionalIcon = zo_iconFormat("FCMQT/art/Icons/Quest_1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- hiddenhint - FCMQT/art/Icons/hidden_quest_icon2.dds (Red eye)
+	local hiddenIcon = zo_iconFormat("FCMQT/art/Icons/hidden_quest_icon2.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
 	if mytype == 2 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(objectiveIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText("* "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextCompleteColor.r, FCMQT.SavedVars.TextCompleteColor.g, FCMQT.SavedVars.TextCompleteColor.b,FCMQT.SavedVars.TextCompleteColor.a)
 	elseif mytype == 3 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(" ** "..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText(optionalIcon..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText("** "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
 	elseif mytype == 4 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(" ** "..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText(optionalIcon..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText("** "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalCompleteColor.r, FCMQT.SavedVars.TextOptionalCompleteColor.g, FCMQT.SavedVars.TextOptionalCompleteColor.b, FCMQT.SavedVars.TextOptionalCompleteColor.a)
 	elseif mytype == 5 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(" *? "..qtext)
-		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(orObjectiveIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText("+ "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextColor.r, FCMQT.SavedVars.TextColor.g, FCMQT.SavedVars.TextColor.b, FCMQT.SavedVars.TextColor.a)
 	elseif mytype == 6 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(" *? "..qtext)
-		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextOptionalColor.r, FCMQT.SavedVars.TextOptionalColor.g, FCMQT.SavedVars.TextOptionalColor.b, FCMQT.SavedVars.TextOptionalColor.a)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(orObjectiveIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText("+ "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.CompleteTextColor.r, FCMQT.SavedVars.CompleteTextColor.g, FCMQT.SavedVars.TextCompleteColor.b, FCMQT.SavedVars.TextCompleteColor.a)
 	elseif mytype == 7 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(hintIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint..": "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintColor.r, FCMQT.SavedVars.HintColor.g, FCMQT.SavedVars.HintColor.b, FCMQT.SavedVars.HintColor.a)
 	elseif mytype == 8 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(hintIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hint..": "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintCompleteColor.r, FCMQT.SavedVars.HintCompleteColor.g, FCMQT.SavedVars.HintCompleteColor.b, FCMQT.SavedVars.HintCompleteColor.a)
 	elseif mytype == 9 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(hiddenIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint..": "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintColor.r, FCMQT.SavedVars.HintColor.g, FCMQT.SavedVars.HintColor.b, FCMQT.SavedVars.HintColor.a)
 	elseif mytype == 10 then
-		FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint.." : "..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(hiddenIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText(FCMQT.mylanguage.quest_hiddenhint..": "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.HintCompleteColor.r, FCMQT.SavedVars.HintCompleteColor.g, FCMQT.SavedVars.HintCompleteColor.b, FCMQT.SavedVars.HintCompleteColor.a)
 	else
-		FCMQT.textbox[FCMQT.boxmarker]:SetText("*"..qtext)
+		FCMQT.textbox[FCMQT.boxmarker]:SetText(objectiveIcon..qtext)
+		--FCMQT.textbox[FCMQT.boxmarker]:SetText("*  "..qtext)
 		FCMQT.textbox[FCMQT.boxmarker]:SetColor(FCMQT.SavedVars.TextColor.r, FCMQT.SavedVars.TextColor.g, FCMQT.SavedVars.TextColor.b, FCMQT.SavedVars.TextColor.a)
 	end
 	if CurrentFottcusedQuest == true then
@@ -1191,6 +1213,8 @@ function FCMQT.Init(eventCode, addOnName)
 		
 		-- Set vars for keybinds
 		FCMQT.LoadKeybindInfo()
+		-- Load Icons
+		FCMQT.LoadIcons()
 		
 		-- UPDATES with EVENTS				
 		EM:RegisterForEvent("FCMQT", EVENT_PLAYER_ACTIVATED, FCMQT.QuestsListUpdate) --> EC:131072 Update after zoning
