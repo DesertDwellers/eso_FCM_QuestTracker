@@ -1,6 +1,6 @@
 FCMQT = FCMQT or {}
 -- Defaults Vars
--- Version : 1.4.5.23
+-- Version : 1.4.6.23
 
 function CreateSettings()
 
@@ -10,7 +10,7 @@ function CreateSettings()
     local LMP   = LibStub("LibMediaProvider-1.0")
 	
 	local QTAuthor = "DesertDwellers"
-	local QTVersion = "1.4.5.23"
+	local QTVersion = "1.4.6.23"
 	local fontList = LMP:List('font')
 	local langList = {"English", "Français", "Deutsch"}
 	local fontStyles = {"normal", "outline", "shadow", "soft-shadow-thick", "soft-shadow-thin", "thick-outline"}

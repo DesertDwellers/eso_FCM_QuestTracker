@@ -7,7 +7,7 @@
 FCMQT = FCMQT or {}
 
 -- General Buffer made by Wykkyd : http://wiki.esoui.com/Event_%26_Update_Buffering
--- Version : 1.4.5.23
+-- Version : 1.4.6.23
 local BufferTable = {}
 local function BufferReached(key, buffer)
 if key == nil then return end

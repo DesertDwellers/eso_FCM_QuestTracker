@@ -10,7 +10,7 @@ FCMQT.language.de = {
 	-- ß = \195\159
 
 	-- Menu
-	-- Version : 1.4.5.23
+	-- Version : 1.4.6.23
 		----Need translations
 	["lang_quests_category_view_settings"] = "Settings for Category Zone View",
 	["lang_class_show_zone"] = "Show zone in Class Category Zone View",
