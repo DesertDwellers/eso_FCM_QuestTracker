@@ -7,7 +7,7 @@
 FCMQT = FCMQT or {}
 
 -- General Buffer made by Wykkyd : http://wiki.esoui.com/Event_%26_Update_Buffering
--- Version : 1.4.6.23
+-- Version : 1.5.0.23.b1
 local BufferTable = {}
 local function BufferReached(key, buffer)
 if key == nil then return end
@@ -1246,6 +1246,15 @@ end
 function FCMQT.SetTextSize(newSize)
 	FCMQT.SavedVars.TextSize = newSize
 	FCMQT.SavedVars.Preset = "Custom"
+	-- objectiveIcon - gold quest icon
+	FCMQT.objectiveIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- orobjective + sign
+	FCMQT.orObjectiveIcon = zo_iconFormat("FCMQT/art/Icons/orObjective_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	FCMQT.hintIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	--optional white quest icon
+	FCMQT.optionalIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- 
+	FCMQT.hiddenIcon = zo_iconFormat("FCMQT/art/Icons/hidden_quest_icon2.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
 	FCMQT.QuestsListUpdate(1)
 end
 
@@ -1412,6 +1421,21 @@ function FCMQT.MouseController(button, qindex, qname)
 		ZO_WorldMap_ShowQuestOnMap(qindex)
 	elseif valaction == "Quest Info to Chat" then
 		FCMQT.QuestToChat(qindex)
+	elseif valaction == "Quest Options Menu" then
+		ClearMenu()
+		AddCustomMenuItem("Change Assisted Quest", function() FCMQT.SetFocusedQuest(qindex) end)
+		AddCustomMenuItem("Remove Quest", function() FCMQT.CheckRemoveQuestBox(qindex, qname) end)
+		AddCustomMenuItem("Share Quest", function() 
+											if GetIsQuestSharable(qindex) then
+												ShareQuest(qindex)
+												d(FCMQT.mylanguage.lang_console_share.." : "..qname)
+											else
+												d(FCMQT.mylanguage.lang_console_noshare.." : "..qname)
+											end
+										end)
+		AddCustomMenuItem("Show On Map", function() ZO_WorldMap_ShowQuestOnMap(qindex) end)
+		
+		ShowMenu()
 	end	
 end
 
@@ -1437,6 +1461,18 @@ function FCMQT.LoadKeybindInfo()
 	--Hide Optional/Hidden Quest Info/Hints ALL
 	FCMQT.HideInfoHintsOption = FCMQT.SavedVars.HideInfoHintsOption
 	--if FCMQT.HideInfoHintsOption == true then d("Hide Optional/Hidden Quest Info/Hints ALL On") else d("Hide Optional/Hidden Quest Info/Hints ALL Off") end
+end
+
+function FCMQT.LoadIcons()
+	-- objectiveIcon - gold quest icon
+	FCMQT.objectiveIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- orobjective + sign
+	FCMQT.orObjectiveIcon = zo_iconFormat("FCMQT/art/Icons/orObjective_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	FCMQT.hintIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon1.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	--optional white quest icon
+	FCMQT.optionalIcon = zo_iconFormat("FCMQT/art/Icons/quest_icon.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
+	-- 
+	FCMQT.hiddenIcon = zo_iconFormat("FCMQT/art/Icons/hidden_quest_icon2.dds",FCMQT.SavedVars.TextSize * 1.34,FCMQT.SavedVars.TextSize * 1.34)
 end
 
 -- Tests Only
